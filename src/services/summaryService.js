@@ -2,7 +2,7 @@ import { openai } from "../config/openai.js";
 import { SUMMARY_SYSTEM_PROMPT } from "../constants/summaryPrompts.js";
 import { fileToDataUrl } from "../utils/imageUtils.js";
 
-const summarize = async ({ file, url }) => {
+const summarize = async ({ file, _url }) => {
   const imageDataUrl = fileToDataUrl(file);
 
   const response = await openai.chat.completions.create({
@@ -21,7 +21,6 @@ const summarize = async ({ file, url }) => {
   return {
     title: result.title,
     summary: result.summary,
-    url,
     historyId: null,
   };
 };
