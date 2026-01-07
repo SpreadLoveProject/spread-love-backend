@@ -7,4 +7,5 @@ export default {
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173",
   SUPABASE_URL: process.env.SUPABASE_URL,
   SUPABASE_KEY: process.env.SUPABASE_KEY,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 };
