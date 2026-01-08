@@ -13,11 +13,11 @@ const createSummary = async (req, res, next) => {
       });
     }
 
-    const result = await summarize({ file, url, userId });
+    const summaryResult = await summarize({ file, url, userId });
 
     res.json({
       success: true,
-      data: result,
+      data: summaryResult,
     });
   } catch (error) {
     next(error);
