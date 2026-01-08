@@ -18,21 +18,21 @@ const summarize = async ({ file, url, userId }) => {
     ],
   });
 
-  const result = parseJsonResponse(response.choices[0].message.content);
+  const parsedSummary = parseJsonResponse(response.choices[0].message.content);
 
   let historyId = null;
   if (userId) {
     historyId = await saveHistory({
       userId,
       url,
-      title: result.title,
-      summary: result.summary,
+      title: parsedSummary.title,
+      summary: parsedSummary.summary,
     });
   }
 
   return {
-    title: result.title,
-    summary: result.summary,
+    title: parsedSummary.title,
+    summary: parsedSummary.summary,
     historyId,
   };
 };
