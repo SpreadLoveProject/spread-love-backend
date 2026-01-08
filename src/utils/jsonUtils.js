@@ -11,5 +11,9 @@ export const parseJsonResponse = (content) => {
     cleaned = cleaned.slice(0, -3);
   }
 
-  return JSON.parse(cleaned.trim());
+  try {
+    return JSON.parse(cleaned.trim());
+  } catch {
+    throw new Error("요약 생성에 실패했습니다. 잠시 후 다시 시도해주세요");
+  }
 };

@@ -1,3 +1,4 @@
+import env from "../config/env.js";
 import { openai } from "../config/openai.js";
 import { SUMMARY_SYSTEM_PROMPT } from "../constants/summaryPrompts.js";
 import { fileToDataUrl } from "../utils/imageUtils.js";
@@ -8,7 +9,8 @@ const summarize = async ({ file, url, userId }) => {
   const imageDataUrl = fileToDataUrl(file);
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: env.OPENAI_MODEL,
+    response_format: { type: "json_object" },
     messages: [
       { role: "system", content: SUMMARY_SYSTEM_PROMPT },
       {
