@@ -24,8 +24,8 @@ app.use("/summaries", summaryRoutes);
 app.use((err, req, res, _next) => {
   console.error(err.stack); // eslint-disable-line no-console
   res.status(err.status || 500).json({
-    message: err.message || "Internal Server Error",
-    ...(env.NODE_ENV === "development" && { stack: err.stack }),
+    success: false,
+    error: err.message || "Internal Server Error",
   });
 });
 
