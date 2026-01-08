@@ -1,17 +1,24 @@
 import { supabase } from "../config/supabase.js";
 
 const authMiddleware = async (req, _res, next) => {
-  let userId = null;
+  try {
+    let userId = null;
 
-  const authHeader = req.headers.authorization;
-  if (authHeader) {
-    const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabase.auth.getUser(token);
-    userId = data.user?.id || null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.slice(7);
+      const { data } = await supabase.auth.getUser(token);
+
+      if (data && data.user) {
+        userId = data.user.id;
+      }
+    }
+
+    req.userId = userId;
+    next();
+  } catch (error) {
+    next(error);
   }
-
-  req.userId = userId;
-  next();
 };
 
 export { authMiddleware };
