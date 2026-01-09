@@ -1,18 +1,19 @@
 import multer from "multer";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+import { UPLOAD } from "../constants/common.js";
+import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_FILE_SIZE },
+  limits: { fileSize: UPLOAD.MAX_FILE_SIZE },
 });
 
 const handleUploadError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: `파일 크기가 너무 큽니다. (최대 ${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+        error: ERROR_MESSAGE.FILE_SIZE_EXCEEDED,
       });
     }
   }
