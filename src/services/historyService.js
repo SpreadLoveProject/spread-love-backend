@@ -40,9 +40,21 @@ const getHistoryById = async (userId, historyId) => {
     .select("id, content_type, url, contents, created_at")
     .eq("id", historyId)
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
+
+  if (error && error.code === "22P02") {
+    const badRequestError = new Error("잘못된 요청 형식입니다.");
+    badRequestError.status = 400;
+    throw badRequestError;
+  }
 
   if (error) throw error;
+
+  if (!data) {
+    const notFoundError = new Error("히스토리를 찾을 수 없습니다.");
+    notFoundError.status = 404;
+    throw notFoundError;
+  }
 
   return {
     id: data.id,
