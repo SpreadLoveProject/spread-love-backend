@@ -17,4 +17,21 @@ const saveHistory = async ({ userId, url, title, summary }) => {
   return data?.id || null;
 };
 
-export { saveHistory };
+const getHistories = async (userId) => {
+  const { data, error } = await supabase
+    .from("histories")
+    .select("id, content_type, contents, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return data.map((item) => ({
+    id: item.id,
+    contentType: item.content_type,
+    contents: { title: item.contents.title },
+    createdAt: item.created_at,
+  }));
+};
+
+export { getHistories, saveHistory };
