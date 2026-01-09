@@ -34,4 +34,6 @@ const getHistories = async (userId) => {
   }));
 };
 
-export { getHistories, saveHistory };
+const getHistoryById = async (_userId, _historyId) => {};
+
+export { getHistories, getHistoryById, saveHistory };
