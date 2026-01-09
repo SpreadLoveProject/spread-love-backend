@@ -1,3 +1,4 @@
+import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
 import { summarize } from "../services/summaryService.js";
 
 const createSummary = async (req, res, next) => {
@@ -7,9 +8,9 @@ const createSummary = async (req, res, next) => {
     const userId = req.userId;
 
     if (!file) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: "이미지 파일이 필요합니다.",
+        error: ERROR_MESSAGE.IMAGE_REQUIRED,
       });
     }
 

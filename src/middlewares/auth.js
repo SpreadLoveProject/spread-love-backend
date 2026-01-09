@@ -1,5 +1,6 @@
 import env from "../config/env.js";
 import { supabase } from "../config/supabase.js";
+import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -21,10 +22,17 @@ const authMiddleware = async (req, res, next) => {
 
     const { data, error } = await supabase.auth.getUser(token);
 
-    if (error || !data?.user) {
-      return res.status(401).json({
+    if (error) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
-        error: "유효하지 않은 인증 토큰입니다.",
+        error: ERROR_MESSAGE.TOKEN_VERIFICATION_FAILED,
+      });
+    }
+
+    if (!data || !data.user) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: ERROR_MESSAGE.USER_NOT_FOUND,
       });
     }
 

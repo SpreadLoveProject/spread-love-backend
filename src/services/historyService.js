@@ -1,4 +1,5 @@
 import { supabase } from "../config/supabase.js";
+import { ERROR_MESSAGE, HTTP_STATUS, SUPABASE_ERROR } from "../constants/errorCodes.js";
 
 const saveHistory = async ({ userId, url, title, summary }) => {
   const { data, error } = await supabase
@@ -42,17 +43,17 @@ const getHistoryById = async (userId, historyId) => {
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (error && error.code === "22P02") {
-    const badRequestError = new Error("잘못된 요청 형식입니다.");
-    badRequestError.status = 400;
+  if (error && error.code === SUPABASE_ERROR.INVALID_UUID) {
+    const badRequestError = new Error(ERROR_MESSAGE.BAD_REQUEST);
+    badRequestError.status = HTTP_STATUS.BAD_REQUEST;
     throw badRequestError;
   }
 
   if (error) throw error;
 
   if (!data) {
-    const notFoundError = new Error("히스토리를 찾을 수 없습니다.");
-    notFoundError.status = 404;
+    const notFoundError = new Error(ERROR_MESSAGE.HISTORY_NOT_FOUND);
+    notFoundError.status = HTTP_STATUS.NOT_FOUND;
     throw notFoundError;
   }
 
