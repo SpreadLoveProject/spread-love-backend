@@ -14,4 +14,6 @@ const getHistories = async (req, res, next) => {
   }
 };
 
-export { getHistories };
+const getHistoryById = async (_req, _res, _next) => {};
+
+export { getHistories, getHistoryById };
