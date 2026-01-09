@@ -1,11 +1,11 @@
 import express from "express";
 
 import * as historyController from "../controllers/historyController.js";
-import { authMiddleware } from "../middlewares/auth.js";
+import { checkToken, requireAuth } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.get("/", authMiddleware, historyController.getHistories);
-router.get("/:id", authMiddleware, historyController.getHistoryById);
+router.get("/", [checkToken, requireAuth], historyController.getHistories);
+router.get("/:id", [checkToken, requireAuth], historyController.getHistoryById);
 
 export default router;

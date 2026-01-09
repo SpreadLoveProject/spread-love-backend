@@ -2,7 +2,7 @@ import env from "../config/env.js";
 import { supabase } from "../config/supabase.js";
 import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
 
-const authMiddleware = async (req, res, next) => {
+const checkToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -43,4 +43,14 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-export { authMiddleware };
+const requireAuth = (req, res, next) => {
+  if (!req.userId) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      success: false,
+      error: ERROR_MESSAGE.UNAUTHORIZED,
+    });
+  }
+  next();
+};
+
+export { checkToken, requireAuth };
