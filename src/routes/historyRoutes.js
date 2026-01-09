@@ -6,6 +6,6 @@ import { authMiddleware } from "../middlewares/auth.js";
 const router = express.Router();
 
 router.get("/", authMiddleware, historyController.getHistories);
-router.get("/:id", historyController.getHistoryById);
+router.get("/:id", authMiddleware, historyController.getHistoryById);
 
 export default router;
