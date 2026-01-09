@@ -14,6 +14,20 @@ const getHistories = async (req, res, next) => {
   }
 };
 
-const getHistoryById = async (_req, _res, _next) => {};
+const getHistoryById = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const { id: historyId } = req.params;
+
+    const history = await historyService.getHistoryById(userId, historyId);
+
+    res.json({
+      success: true,
+      data: history,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export { getHistories, getHistoryById };
