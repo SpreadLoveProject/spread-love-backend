@@ -34,6 +34,23 @@ const getHistories = async (userId) => {
   }));
 };
 
-const getHistoryById = async (_userId, _historyId) => {};
+const getHistoryById = async (userId, historyId) => {
+  const { data, error } = await supabase
+    .from("histories")
+    .select("id, content_type, url, contents, created_at")
+    .eq("id", historyId)
+    .eq("user_id", userId)
+    .single();
+
+  if (error) throw error;
+
+  return {
+    id: data.id,
+    contentType: data.content_type,
+    url: data.url,
+    contents: data.contents,
+    createdAt: data.created_at,
+  };
+};
 
 export { getHistories, getHistoryById, saveHistory };
