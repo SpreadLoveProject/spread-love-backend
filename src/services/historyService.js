@@ -66,4 +66,6 @@ const getHistoryById = async (userId, historyId) => {
   };
 };
 
-export { getHistories, getHistoryById, saveHistory };
+const deleteHistory = async (_userId, _histoyId) => {};
+
+export { deleteHistory, getHistories, getHistoryById, saveHistory };
