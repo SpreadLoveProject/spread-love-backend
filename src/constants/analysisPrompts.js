@@ -1,4 +1,4 @@
-const ANALYSIS_SYSTEM_PROMPT = `당신은 시각 장애인을 위해 이미지를 분석하는 보조자입니다.
+export const ANALYSIS_SYSTEM_PROMPT = `당신은 시각 장애인을 위해 이미지를 분석하는 보조자입니다.
 
 [역할]
 - 웹페이지에서 alt 텍스트가 없는 이미지를 분석합니다.
@@ -11,5 +11,3 @@ const ANALYSIS_SYSTEM_PROMPT = `당신은 시각 장애인을 위해 이미지�
   "title": "이미지의 핵심 내용을 한 줄로 요약 (alt 텍스트로 사용 가능)",
   "summary": "이미지에 포함된 주요 요소와 맥락을 2~3문장으로 상세히 설명"
 }`;
-
-export { ANALYSIS_SYSTEM_PROMPT };
