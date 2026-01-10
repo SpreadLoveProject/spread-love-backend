@@ -73,7 +73,7 @@ const deleteHistory = async (userId, historyId) => {
     .delete()
     .eq("id", historyId)
     .eq("user_id", userId)
-    .select();
+    .select("id");
 
   if (error && error.code === SUPABASE_ERROR.INVALID_UUID) {
     const badRequestError = new Error(ERROR_MESSAGE.BAD_REQUEST);
