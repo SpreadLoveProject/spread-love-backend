@@ -53,6 +53,7 @@ const getHistoryById = async (userId, historyId) => {
 
   if (!data) {
     const notFoundError = new Error(ERROR_MESSAGE.HISTORY_NOT_FOUND);
+
     notFoundError.status = HTTP_STATUS.NOT_FOUND;
     throw notFoundError;
   }
@@ -66,6 +67,31 @@ const getHistoryById = async (userId, historyId) => {
   };
 };
 
-const deleteHistory = async (_userId, _histoyId) => {};
+const deleteHistory = async (userId, historyId) => {
+  const { data, error } = await supabase
+    .from("histories")
+    .delete()
+    .eq("id", historyId)
+    .eq("user_id", userId)
+    .select();
+
+  if (error && error.code === SUPABASE_ERROR.INVALID_UUID) {
+    const badRequestError = new Error(ERROR_MESSAGE.BAD_REQUEST);
+
+    badRequestError.status = HTTP_STATUS.BAD_REQUEST;
+    throw badRequestError;
+  }
+
+  if (error) throw error;
+
+  if (!data || data.length === 0) {
+    const notFoundError = new Error(ERROR_MESSAGE.HISTORY_NOT_FOUND);
+
+    notFoundError.status = HTTP_STATUS.NOT_FOUND;
+    throw notFoundError;
+  }
+
+  return;
+};
 
 export { deleteHistory, getHistories, getHistoryById, saveHistory };

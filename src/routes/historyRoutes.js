@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.get("/", [checkToken, requireAuth], historyController.getHistories);
 router.get("/:id", [checkToken, requireAuth], historyController.getHistoryById);
-router.delete("/:id", historyController.deleteHistory);
+router.delete("/:id", [checkToken, requireAuth], historyController.deleteHistory);
 
 export default router;
