@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 
 import env from "./config/env.js";
+import analysisRoutes from "./routes/analysisRoutes.js";
 import healthRoutes from "./routes/healthRoutes.js";
 import historyRoutes from "./routes/historyRoutes.js";
 import summaryRoutes from "./routes/summaryRoutes.js";
@@ -22,6 +23,7 @@ app.use(
 app.use("/health", healthRoutes);
 app.use("/summaries", summaryRoutes);
 app.use("/histories", historyRoutes);
+app.use("/analyses", analysisRoutes);
 
 app.use((err, req, res, _next) => {
   console.error(err.stack);
