@@ -34,6 +34,7 @@ const summarize = async ({ file, url, userId }) => {
     url,
     title: parsedSummary.title,
     summary: parsedSummary.summary,
+    contentType: "summary",
   });
 
   return {
