@@ -1,12 +1,12 @@
 import { supabase } from "../config/supabase.js";
 import { ERROR_MESSAGE, HTTP_STATUS, SUPABASE_ERROR } from "../constants/errorCodes.js";
 
-const saveHistory = async ({ userId, url, title, summary }) => {
+const saveHistory = async ({ userId, url, title, summary, contentType }) => {
   const { data, error } = await supabase
     .from("histories")
     .insert({
       user_id: userId,
-      content_type: "summary",
+      content_type: contentType,
       url,
       contents: { title, summary },
     })
