@@ -30,4 +30,6 @@ const getHistoryById = async (req, res, next) => {
   }
 };
 
-export { getHistories, getHistoryById };
+const deleteHistory = async (_req, _res, _next) => {};
+
+export { deleteHistory, getHistories, getHistoryById };
