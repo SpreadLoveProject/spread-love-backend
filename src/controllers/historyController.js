@@ -1,3 +1,4 @@
+import { SUCCESS_MESSAGE } from "../constants/common.js";
 import * as historyService from "../services/historyService.js";
 
 const getHistories = async (req, res, next) => {
@@ -30,6 +31,20 @@ const getHistoryById = async (req, res, next) => {
   }
 };
 
-const deleteHistory = async (_req, _res, _next) => {};
+const deleteHistory = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const { id: historyId } = req.params;
+
+    await historyService.deleteHistory(userId, historyId);
+
+    res.json({
+      success: true,
+      message: SUCCESS_MESSAGE.HISTORY_DELETED,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export { deleteHistory, getHistories, getHistoryById };
