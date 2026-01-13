@@ -1,6 +1,10 @@
 import { supabase } from "../config/supabase.js";
 import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
 
+const isTokenExpired = (error) => {
+  return error && error.message && error.message.toLowerCase().includes("expired");
+};
+
 const checkToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -15,16 +19,14 @@ const checkToken = async (req, res, next) => {
 
     const { data, error } = await supabase.auth.getUser(token);
 
+    if (isTokenExpired(error)) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: ERROR_MESSAGE.TOKEN_EXPIRED,
+      });
+    }
+
     if (error) {
-      const isExpired = error.message && error.message.toLowerCase().includes("expired");
-
-      if (isExpired) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          error: ERROR_MESSAGE.TOKEN_EXPIRED,
-        });
-      }
-
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
         error: ERROR_MESSAGE.TOKEN_VERIFICATION_FAILED,
