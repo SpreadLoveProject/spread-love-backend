@@ -6,7 +6,7 @@ export default {
   PORT: parseInt(process.env.PORT, 10) || 3000,
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173",
   SUPABASE_URL: process.env.SUPABASE_URL,
-  SUPABASE_KEY: process.env.SUPABASE_KEY,
+  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   OPENAI_MODEL: process.env.OPENAI_MODEL || "gpt-4o-mini",
   DEV_TOKEN: process.env.DEV_TOKEN,
