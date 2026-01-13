@@ -14,6 +14,7 @@ export const ERROR_MESSAGE = {
   UNAUTHORIZED: "유효하지 않은 인증 토큰입니다.",
   HISTORY_NOT_FOUND: "히스토리를 찾을 수 없습니다.",
   TOKEN_VERIFICATION_FAILED: "토큰 검증에 실패했습니다.",
+  TOKEN_EXPIRED: "토큰이 만료되었습니다.",
   USER_NOT_FOUND: "사용자를 찾을 수 없습니다.",
   IMAGE_REQUIRED: "이미지 파일이 필요합니다.",
   FILE_SIZE_EXCEEDED: "파일 크기가 너무 큽니다. (최대 5MB)",
