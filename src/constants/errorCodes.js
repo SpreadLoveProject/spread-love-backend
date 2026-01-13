@@ -17,5 +17,7 @@ export const ERROR_MESSAGE = {
   TOKEN_EXPIRED: "토큰이 만료되었습니다.",
   USER_NOT_FOUND: "사용자를 찾을 수 없습니다.",
   IMAGE_REQUIRED: "이미지 파일이 필요합니다.",
+  IMAGE_URL_REQUIRED: "이미지 URL이 필요합니다.",
+  IMAGE_FETCH_FAILED: "이미지를 가져올 수 없습니다.",
   FILE_SIZE_EXCEEDED: "파일 크기가 너무 큽니다. (최대 5MB)",
 };

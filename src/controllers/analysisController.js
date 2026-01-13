@@ -3,18 +3,17 @@ import { analyze } from "../services/analysisService.js";
 
 const createAnalysis = async (req, res, next) => {
   try {
-    const file = req.file;
-    const { url } = req.body;
+    const { imageUrl, pageUrl } = req.body;
     const userId = req.userId;
 
-    if (!file) {
+    if (!imageUrl) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: ERROR_MESSAGE.IMAGE_REQUIRED,
+        error: ERROR_MESSAGE.IMAGE_URL_REQUIRED,
       });
     }
 
-    const analysisResult = await analyze({ file, url, userId });
+    const analysisResult = await analyze({ imageUrl, pageUrl, userId });
 
     res.json({
       success: true,
