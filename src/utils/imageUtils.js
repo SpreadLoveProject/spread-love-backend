@@ -1,3 +1,5 @@
+import sharp from "sharp";
+
 import { UPLOAD } from "../constants/common.js";
 import { ERROR_MESSAGE } from "../constants/errorCodes.js";
 
@@ -14,16 +16,29 @@ const urlToDataUrl = async (imageUrl) => {
     throw new Error(`${ERROR_MESSAGE.IMAGE_FETCH_FAILED}: ${response.status}`);
   }
 
-  const buffer = await response.arrayBuffer();
-
-  if (buffer.byteLength > UPLOAD.MAX_FILE_SIZE) {
+  const contentLength = response.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > UPLOAD.MAX_FILE_SIZE) {
     throw new Error(ERROR_MESSAGE.FILE_SIZE_EXCEEDED);
   }
 
-  const base64 = Buffer.from(buffer).toString("base64");
-  const contentType = response.headers.get("content-type") || "image/png";
+  const contentType = response.headers.get("content-type");
+  const isSvg = imageUrl.endsWith(".svg") || (contentType && contentType.includes("svg"));
+  const rawBuffer = await response.arrayBuffer();
 
-  return `data:${contentType};base64,${base64}`;
+  if (rawBuffer.byteLength > UPLOAD.MAX_FILE_SIZE) {
+    throw new Error(ERROR_MESSAGE.FILE_SIZE_EXCEEDED);
+  }
+
+  if (isSvg) {
+    const pngBuffer = await sharp(Buffer.from(rawBuffer)).png().toBuffer();
+    const base64 = pngBuffer.toString("base64");
+
+    return `data:image/png;base64,${base64}`;
+  }
+
+  const base64 = Buffer.from(rawBuffer).toString("base64");
+
+  return `data:${contentType || "image/png"};base64,${base64}`;
 };
 
 export { fileToDataUrl, urlToDataUrl };
