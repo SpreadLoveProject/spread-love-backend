@@ -1,12 +1,12 @@
 import env from "../config/env.js";
 import { openai } from "../config/openai.js";
 import { ANALYSIS_SYSTEM_PROMPT } from "../constants/analysisPrompts.js";
-import { fileToDataUrl } from "../utils/imageUtils.js";
+import { urlToDataUrl } from "../utils/imageUtils.js";
 import { parseJsonResponse } from "../utils/jsonUtils.js";
 import { saveHistory } from "./historyService.js";
 
-const analyze = async ({ file, url, userId }) => {
-  const imageDataUrl = fileToDataUrl(file);
+const analyze = async ({ imageUrl, pageUrl, userId }) => {
+  const imageDataUrl = await urlToDataUrl(imageUrl);
   const response = await openai.chat.completions.create({
     model: env.OPENAI_MODEL,
     response_format: { type: "json_object" },
@@ -30,7 +30,7 @@ const analyze = async ({ file, url, userId }) => {
 
   const historyId = await saveHistory({
     userId,
-    url,
+    url: pageUrl,
     title: parsedAnalysis.title,
     summary: parsedAnalysis.summary,
     contentType: "analysis",
