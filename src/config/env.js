@@ -11,4 +11,5 @@ export default {
   OPENAI_MODEL: process.env.OPENAI_MODEL || "gpt-4o-mini",
   DEV_TOKEN: process.env.DEV_TOKEN,
   DEV_USER_ID: process.env.DEV_USER_ID,
+  REDIS_URL: process.env.REDIS_URL,
 };
