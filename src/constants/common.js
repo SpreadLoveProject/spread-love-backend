@@ -7,7 +7,7 @@ export const SUCCESS_MESSAGE = {
 };
 
 export const RATE_LIMIT = {
-  TTL: 86400,
+  TTL: 24 * 60 * 60,
   GUEST_LIMIT: 3,
   USER_LIMIT: 6,
   GUEST_PREFIX: "rate_limit:guest:",
