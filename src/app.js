@@ -15,7 +15,8 @@ app.use(
   cors({
     origin: env.CORS_ORIGIN,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Guest-Id"],
+    exposedHeaders: ["RateLimit-Remaining"],
     credentials: true,
   }),
 );
