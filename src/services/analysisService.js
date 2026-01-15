@@ -1,17 +1,19 @@
 import env from "../config/env.js";
 import { openai } from "../config/openai.js";
-import { ANALYSIS_SYSTEM_PROMPT } from "../constants/analysisPrompts.js";
 import { urlToDataUrl } from "../utils/imageUtils.js";
 import { parseJsonResponse } from "../utils/jsonUtils.js";
+import { getAnalysisPrompt } from "../utils/promptUtils.js";
 import { saveHistory } from "./historyService.js";
 
-const analyze = async ({ imageUrl, pageUrl, userId }) => {
+const analyze = async ({ imageUrl, pageUrl, userId, settings }) => {
   const imageDataUrl = await urlToDataUrl(imageUrl);
+  const systemPrompt = getAnalysisPrompt(settings);
+
   const response = await openai.chat.completions.create({
     model: env.OPENAI_MODEL,
     response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: ANALYSIS_SYSTEM_PROMPT },
+      { role: "system", content: systemPrompt },
       {
         role: "user",
         content: [{ type: "image_url", image_url: { url: imageDataUrl } }],
