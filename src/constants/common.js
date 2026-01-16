@@ -24,3 +24,7 @@ export const PUPPETEER = {
 export const CONCURRENCY = {
   MAX_CAPTURES: 3,
 };
+
+export const GUEST_TOKEN = {
+  EXPIRES_IN: "24h",
+};
