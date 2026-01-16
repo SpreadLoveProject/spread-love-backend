@@ -43,7 +43,7 @@ const checkGuestToken = async (req, res, next) => {
     }
 
     const token = authHeader.slice(7);
-    const { guestId } = await verifyToken(token);
+    const { guestId } = verifyToken(token);
 
     req.guestId = guestId;
     next();

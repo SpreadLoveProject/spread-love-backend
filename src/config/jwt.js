@@ -6,7 +6,7 @@ const signToken = (payload, expiresIn) => {
   return jwt.sign(payload, env.JWT_SECRET, { expiresIn });
 };
 
-const verifyToken = async (token) => {
+const verifyToken = (token) => {
   return jwt.verify(token, env.JWT_SECRET);
 };
 
