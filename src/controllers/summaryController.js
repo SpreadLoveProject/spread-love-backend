@@ -4,20 +4,19 @@ import { summarize } from "../services/summaryService.js";
 
 const createSummary = async (req, res, next) => {
   try {
-    const file = req.file;
-    const { url, settings: settingsString } = req.body;
+    const { url, settings } = req.body;
     const userId = req.userId;
 
-    if (!file) {
+    if (!url) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: ERROR_MESSAGE.IMAGE_REQUIRED,
+        error: ERROR_MESSAGE.URL_REQUIRED,
       });
     }
 
-    const settings = settingsString ? JSON.parse(settingsString) : DEFAULT_SETTINGS;
+    const userSettings = settings || DEFAULT_SETTINGS;
 
-    const summaryResult = await summarize({ file, url, userId, settings });
+    const summaryResult = await summarize({ url, userId, settings: userSettings });
 
     res.json({
       success: true,

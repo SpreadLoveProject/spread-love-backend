@@ -1,12 +1,12 @@
 import env from "../config/env.js";
 import { openai } from "../config/openai.js";
-import { fileToDataUrl } from "../utils/imageUtils.js";
 import { parseJsonResponse } from "../utils/jsonUtils.js";
 import { getSummaryPrompt } from "../utils/promptUtils.js";
+import { captureFullPage } from "../utils/puppeteerUtils.js";
 import { saveHistory } from "./historyService.js";
 
-const summarize = async ({ file, url, userId, settings }) => {
-  const imageDataUrl = fileToDataUrl(file);
+const summarize = async ({ url, userId, settings }) => {
+  const imageDataUrl = await captureFullPage(url);
   const systemPrompt = getSummaryPrompt(settings);
 
   const response = await openai.chat.completions.create({
