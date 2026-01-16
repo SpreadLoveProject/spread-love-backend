@@ -13,3 +13,9 @@ export const RATE_LIMIT = {
   GUEST_PREFIX: "rate_limit:guest:",
   USER_PREFIX: "rate_limit:user:",
 };
+
+export const PUPPETEER = {
+  VIEWPORT_WIDTH: 1280,
+  VIEWPORT_HEIGHT: 800,
+  PAGE_LOAD_TIMEOUT_MS: 30 * 1000,
+};

@@ -22,4 +22,8 @@ export const ERROR_MESSAGE = {
   IMAGE_FETCH_FAILED: "이미지를 가져올 수 없습니다.",
   FILE_SIZE_EXCEEDED: "파일 크기가 너무 큽니다. (최대 5MB)",
   RATE_LIMIT_EXCEEDED: "일일 사용 횟수를 초과했습니다.",
+  URL_REQUIRED: "URL이 필요합니다.",
+  INVALID_URL: "유효하지 않은 URL입니다.",
+  PAGE_LOAD_TIMEOUT: "페이지 로딩 시간이 초과되었습니다.",
+  PAGE_CAPTURE_FAILED: "페이지 캡처에 실패했습니다.",
 };
