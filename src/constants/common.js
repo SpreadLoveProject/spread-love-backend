@@ -19,3 +19,7 @@ export const PUPPETEER = {
   VIEWPORT_HEIGHT: 800,
   PAGE_LOAD_TIMEOUT_MS: 30 * 1000,
 };
+
+export const CONCURRENCY = {
+  MAX_CAPTURES: 3,
+};
