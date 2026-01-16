@@ -15,14 +15,20 @@ const captureFullPage = async (url) => {
       width: PUPPETEER.VIEWPORT_WIDTH,
       height: PUPPETEER.VIEWPORT_HEIGHT,
     });
+
     await page.goto(url, {
       waitUntil: "networkidle2",
       timeout: PUPPETEER.PAGE_LOAD_TIMEOUT_MS,
     });
 
     const screenshotBuffer = await page.screenshot({
-      fullPage: true,
       type: "png",
+      clip: {
+        x: 0,
+        y: 0,
+        width: PUPPETEER.VIEWPORT_WIDTH,
+        height: PUPPETEER.MAX_CAPTURE_HEIGHT,
+      },
     });
 
     const base64 = screenshotBuffer.toString("base64");
