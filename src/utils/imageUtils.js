@@ -3,12 +3,6 @@ import sharp from "sharp";
 import { UPLOAD } from "../constants/common.js";
 import { ERROR_MESSAGE } from "../constants/errorCodes.js";
 
-const fileToDataUrl = (file) => {
-  const base64 = file.buffer.toString("base64");
-
-  return `data:${file.mimetype};base64,${base64}`;
-};
-
 const urlToDataUrl = async (imageUrl) => {
   const response = await fetch(imageUrl);
 
@@ -41,4 +35,4 @@ const urlToDataUrl = async (imageUrl) => {
   return `data:${contentType || "image/png"};base64,${base64}`;
 };
 
-export { fileToDataUrl, urlToDataUrl };
+export { urlToDataUrl };
