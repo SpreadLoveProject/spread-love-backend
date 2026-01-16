@@ -1,36 +1,29 @@
-import { verifyToken } from "../config/jwt.js";
 import { redis } from "../config/redis.js";
 import { RATE_LIMIT } from "../constants/common.js";
 import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
 
-const guestRateLimit = async (req, res, next) => {
+const rateLimit = async (req, res, next) => {
   try {
-    if (req.userId) {
+    const id = req.userId || req.guestId;
+
+    if (!id) {
       return next();
     }
 
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        success: false,
-        error: ERROR_MESSAGE.TOKEN_REQUIRED,
-      });
-    }
+    const prefix = req.userId ? RATE_LIMIT.USER_PREFIX : RATE_LIMIT.GUEST_PREFIX;
+    const limit = req.userId ? RATE_LIMIT.USER_LIMIT : RATE_LIMIT.GUEST_LIMIT;
 
-    const token = authHeader.slice(7);
-    const { guestId } = await verifyToken(token);
-
-    const key = `${RATE_LIMIT.GUEST_PREFIX}${guestId}`;
+    const key = `${prefix}${id}`;
     const currentCount = await redis.incr(key);
 
     if (currentCount === 1) {
       await redis.expire(key, RATE_LIMIT.TTL);
     }
 
-    const remainingRequests = Math.max(0, RATE_LIMIT.GUEST_LIMIT - currentCount);
+    const remainingRequests = Math.max(0, limit - currentCount);
     res.set("RateLimit-Remaining", String(remainingRequests));
 
-    if (currentCount > RATE_LIMIT.GUEST_LIMIT) {
+    if (currentCount > limit) {
       return res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
         success: false,
         error: ERROR_MESSAGE.RATE_LIMIT_EXCEEDED,
@@ -43,33 +36,4 @@ const guestRateLimit = async (req, res, next) => {
   }
 };
 
-const userRateLimit = async (req, res, next) => {
-  try {
-    if (!req.userId) {
-      return next();
-    }
-
-    const key = `${RATE_LIMIT.USER_PREFIX}${req.userId}`;
-    const currentCount = await redis.incr(key);
-
-    if (currentCount === 1) {
-      await redis.expire(key, RATE_LIMIT.TTL);
-    }
-
-    const remainingRequests = Math.max(0, RATE_LIMIT.USER_LIMIT - currentCount);
-    res.set("RateLimit-Remaining", String(remainingRequests));
-
-    if (currentCount > RATE_LIMIT.USER_LIMIT) {
-      return res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
-        success: false,
-        error: ERROR_MESSAGE.RATE_LIMIT_EXCEEDED,
-      });
-    }
-
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
-export { guestRateLimit, userRateLimit };
+export { rateLimit };

@@ -1,11 +1,11 @@
 import express from "express";
 
 import { createAnalysis } from "../controllers/analysisController.js";
-import { checkToken } from "../middlewares/auth.js";
-import { guestRateLimit, userRateLimit } from "../middlewares/rateLimit.js";
+import { checkGuestToken, checkUserToken } from "../middlewares/auth.js";
+import { rateLimit } from "../middlewares/rateLimit.js";
 
 const router = express.Router();
 
-router.post("/", [checkToken, guestRateLimit, userRateLimit], createAnalysis);
+router.post("/", [checkUserToken, checkGuestToken, rateLimit], createAnalysis);
 
 export default router;

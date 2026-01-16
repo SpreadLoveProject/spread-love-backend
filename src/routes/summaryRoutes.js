@@ -1,12 +1,12 @@
 import express from "express";
 
 import { createSummary } from "../controllers/summaryController.js";
-import { checkToken } from "../middlewares/auth.js";
+import { checkGuestToken, checkUserToken } from "../middlewares/auth.js";
 import { concurrencyLimit } from "../middlewares/concurrencyLimit.js";
-import { guestRateLimit, userRateLimit } from "../middlewares/rateLimit.js";
+import { rateLimit } from "../middlewares/rateLimit.js";
 
 const router = express.Router();
 
-router.post("/", [checkToken, guestRateLimit, userRateLimit, concurrencyLimit], createSummary);
+router.post("/", [checkUserToken, checkGuestToken, rateLimit, concurrencyLimit], createSummary);
 
 export default router;
