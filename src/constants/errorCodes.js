@@ -27,4 +27,5 @@ export const ERROR_MESSAGE = {
   PAGE_LOAD_TIMEOUT: "페이지 로딩 시간이 초과되었습니다.",
   PAGE_CAPTURE_FAILED: "페이지 캡처에 실패했습니다.",
   CONCURRENCY_LIMIT_EXCEEDED: "요청이 많습니다. 잠시 후 다시 시도해주세요.",
+  TOKEN_REQUIRED: "인증 토큰이 필요합니다.",
 };

@@ -1,3 +1,4 @@
+import { verifyToken } from "../config/jwt.js";
 import { redis } from "../config/redis.js";
 import { RATE_LIMIT } from "../constants/common.js";
 import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
@@ -8,11 +9,16 @@ const guestRateLimit = async (req, res, next) => {
       return next();
     }
 
-    const guestId = req.get("Guest-Id");
-
-    if (!guestId) {
-      return next();
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        error: ERROR_MESSAGE.TOKEN_REQUIRED,
+      });
     }
+
+    const token = authHeader.slice(7);
+    const { guestId } = await verifyToken(token);
 
     const key = `${RATE_LIMIT.GUEST_PREFIX}${guestId}`;
     const currentCount = await redis.incr(key);
