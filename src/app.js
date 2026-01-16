@@ -3,6 +3,7 @@ import express from "express";
 
 import env from "./config/env.js";
 import analysisRoutes from "./routes/analysisRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import healthRoutes from "./routes/healthRoutes.js";
 import historyRoutes from "./routes/historyRoutes.js";
 import summaryRoutes from "./routes/summaryRoutes.js";
@@ -21,6 +22,7 @@ app.use(
   }),
 );
 
+app.use("/auth", authRoutes);
 app.use("/health", healthRoutes);
 app.use("/summaries", summaryRoutes);
 app.use("/histories", historyRoutes);
