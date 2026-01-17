@@ -3,11 +3,34 @@ import crypto from "crypto";
 import { signToken } from "../config/jwt.js";
 import { redis } from "../config/redis.js";
 import { GUEST_TOKEN, RATE_LIMIT } from "../constants/common.js";
+import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
+import { getClientIP } from "../utils/ipUtils.js";
 
-const issueGuestToken = (req, res, next) => {
+const issueGuestToken = async (req, res, next) => {
   try {
+    const clientIP = getClientIP(req);
+
+    if (!clientIP) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        error: ERROR_MESSAGE.IP_NOT_FOUND,
+      });
+    }
+
+    const ipKey = `${GUEST_TOKEN.IP_PREFIX}${clientIP}`;
+    const existingToken = await redis.get(ipKey);
+
+    if (existingToken) {
+      return res.json({
+        success: true,
+        data: { token: existingToken },
+      });
+    }
+
     const guestId = crypto.randomUUID();
     const token = signToken({ guestId }, GUEST_TOKEN.EXPIRES_IN);
+
+    await redis.setex(ipKey, RATE_LIMIT.TTL, token);
 
     res.json({
       success: true,

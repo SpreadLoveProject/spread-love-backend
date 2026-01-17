@@ -27,4 +27,5 @@ export const CONCURRENCY = {
 
 export const GUEST_TOKEN = {
   EXPIRES_IN: "24h",
+  IP_PREFIX: "guest_ip:",
 };
