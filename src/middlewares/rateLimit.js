@@ -1,19 +1,16 @@
 import { redis } from "../config/redis.js";
 import { RATE_LIMIT } from "../constants/common.js";
 import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
+import { getRateLimitInfo } from "../utils/rateLimitUtils.js";
 
 const rateLimit = async (req, res, next) => {
   try {
-    const id = req.userId || req.guestId;
+    const { id, limit, key } = getRateLimitInfo(req);
 
     if (!id) {
       return next();
     }
 
-    const prefix = req.userId ? RATE_LIMIT.USER_PREFIX : RATE_LIMIT.GUEST_PREFIX;
-    const limit = req.userId ? RATE_LIMIT.USER_LIMIT : RATE_LIMIT.GUEST_LIMIT;
-
-    const key = `${prefix}${id}`;
     const currentCount = await redis.incr(key);
 
     if (currentCount === 1) {

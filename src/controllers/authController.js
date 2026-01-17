@@ -5,6 +5,7 @@ import { redis } from "../config/redis.js";
 import { GUEST_TOKEN, RATE_LIMIT } from "../constants/common.js";
 import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
 import { getClientIP } from "../utils/ipUtils.js";
+import { getRateLimitInfo } from "../utils/rateLimitUtils.js";
 
 const issueGuestToken = async (req, res, next) => {
   try {
@@ -43,11 +44,7 @@ const issueGuestToken = async (req, res, next) => {
 
 const getRateLimit = async (req, res, next) => {
   try {
-    const id = req.userId || req.guestId;
-    const prefix = req.userId ? RATE_LIMIT.USER_PREFIX : RATE_LIMIT.GUEST_PREFIX;
-    const limit = req.userId ? RATE_LIMIT.USER_LIMIT : RATE_LIMIT.GUEST_LIMIT;
-
-    const key = `${prefix}${id}`;
+    const { limit, key } = getRateLimitInfo(req);
     const currentCount = await redis.get(key);
 
     const remainingRequests = Math.max(0, limit - (Number(currentCount) || 0));
