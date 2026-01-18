@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 
 import env from "./config/env.js";
+import { ERROR_MESSAGE, HTTP_STATUS } from "./constants/errorCodes.js";
 import analysisRoutes from "./routes/analysisRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import healthRoutes from "./routes/healthRoutes.js";
@@ -29,6 +30,21 @@ app.use("/analyses", analysisRoutes);
 
 app.use((err, req, res, _next) => {
   console.error(err.stack);
+
+  if (err.name === "TokenExpiredError") {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      success: false,
+      error: ERROR_MESSAGE.TOKEN_EXPIRED,
+    });
+  }
+
+  if (err.name === "JsonWebTokenError") {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      success: false,
+      error: ERROR_MESSAGE.TOKEN_VERIFICATION_FAILED,
+    });
+  }
+
   res.status(err.status || 500).json({
     success: false,
     error: err.message || "Internal Server Error",
