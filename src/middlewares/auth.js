@@ -1,52 +1,84 @@
 import { verifyToken } from "../config/jwt.js";
 import { supabase } from "../config/supabase.js";
-import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
+import { ERROR_CODE, ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
 
-const checkUserToken = async (req, res, next) => {
+const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      req.userId = null;
-
-      return next();
-    }
-
-    const token = authHeader.slice(7);
-
-    const { data, error } = await supabase.auth.getUser(token);
-
-    if (error || !data.user) {
-      req.userId = null;
-      return next();
-    }
-
-    req.userId = data.user.id;
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
-const checkGuestToken = async (req, res, next) => {
-  try {
-    if (req.userId) {
-      return next();
-    }
-
-    const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
+        errorCode: ERROR_CODE.TOKEN_REQUIRED,
         error: ERROR_MESSAGE.TOKEN_REQUIRED,
       });
     }
 
-    const token = authHeader.slice(7);
-    const { guestId } = verifyToken(token);
+    const fullToken = authHeader.slice(7);
 
-    req.guestId = guestId;
-    next();
+    if (fullToken.startsWith("guest_")) {
+      const token = fullToken.slice(6);
+
+      try {
+        const decoded = verifyToken(token);
+
+        if (!decoded.guestId) {
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+            success: false,
+            errorCode: ERROR_CODE.INVALID_GUEST_TOKEN,
+            error: ERROR_MESSAGE.INVALID_GUEST_TOKEN,
+          });
+        }
+
+        req.guestId = decoded.guestId;
+        return next();
+      } catch (error) {
+        if (error.name === "TokenExpiredError") {
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+            success: false,
+            errorCode: ERROR_CODE.GUEST_TOKEN_EXPIRED,
+            error: ERROR_MESSAGE.GUEST_TOKEN_EXPIRED,
+          });
+        }
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          success: false,
+          errorCode: ERROR_CODE.INVALID_GUEST_TOKEN,
+          error: ERROR_MESSAGE.INVALID_GUEST_TOKEN,
+        });
+      }
+    } else if (fullToken.startsWith("user_")) {
+      const token = fullToken.slice(5);
+
+      const { data, error } = await supabase.auth.getUser(token);
+
+      if (error || !data.user) {
+        const isExpired =
+          error?.message?.toLowerCase().includes("expired") || error?.status === 401;
+
+        if (isExpired) {
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+            success: false,
+            errorCode: ERROR_CODE.USER_TOKEN_EXPIRED,
+            error: ERROR_MESSAGE.USER_TOKEN_EXPIRED,
+          });
+        }
+
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          success: false,
+          errorCode: ERROR_CODE.INVALID_USER_TOKEN,
+          error: ERROR_MESSAGE.INVALID_USER_TOKEN,
+        });
+      }
+
+      req.userId = data.user.id;
+      return next();
+    } else {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        errorCode: ERROR_CODE.UNKNOWN_TOKEN_TYPE,
+        error: ERROR_MESSAGE.UNKNOWN_TOKEN_TYPE,
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -56,10 +88,11 @@ const requireAuth = (req, res, next) => {
   if (!req.userId) {
     return res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
+      errorCode: ERROR_CODE.INVALID_USER_TOKEN,
       error: ERROR_MESSAGE.UNAUTHORIZED,
     });
   }
   next();
 };
 
-export { checkGuestToken, checkUserToken, requireAuth };
+export { authenticate, requireAuth };
