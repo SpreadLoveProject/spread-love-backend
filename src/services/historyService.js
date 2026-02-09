@@ -1,4 +1,5 @@
 import { supabase } from "../config/supabase.js";
+import { PAGINATION } from "../constants/common.js";
 import { ERROR_MESSAGE, HTTP_STATUS, SUPABASE_ERROR } from "../constants/errorCodes.js";
 
 const saveHistory = async ({ userId, url, title, summary, contentType }) => {
@@ -18,21 +19,44 @@ const saveHistory = async ({ userId, url, title, summary, contentType }) => {
   return data?.id || null;
 };
 
-const getHistories = async (userId) => {
+const getHistories = async (
+  userId,
+  page = PAGINATION.DEFAULT_PAGE,
+  limit = PAGINATION.DEFAULT_LIMIT,
+) => {
+  const offset = (page - 1) * limit;
+
+  const { count, error: countError } = await supabase
+    .from("histories")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  if (countError) throw countError;
+
   const { data, error } = await supabase
     .from("histories")
-    .select("id, content_type, contents, created_at")
+    .select("id, content_type, url, contents, created_at")
     .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
 
   if (error) throw error;
 
-  return data.map((item) => ({
-    id: item.id,
-    contentType: item.content_type,
-    contents: { title: item.contents.title },
-    createdAt: item.created_at,
-  }));
+  return {
+    histories: data.map((item) => ({
+      id: item.id,
+      contentType: item.content_type,
+      url: item.url,
+      contents: item.contents,
+      createdAt: item.created_at,
+    })),
+    pagination: {
+      currentPage: page,
+      totalPages: Math.ceil(count / limit),
+      totalCount: count,
+      limit,
+    },
+  };
 };
 
 const deleteHistory = async (userId, historyId) => {

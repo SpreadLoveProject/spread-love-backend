@@ -29,3 +29,8 @@ export const GUEST_TOKEN = {
   EXPIRES_IN: "24h",
   IP_PREFIX: "guest_ip:",
 };
+
+export const PAGINATION = {
+  DEFAULT_PAGE: 1,
+  DEFAULT_LIMIT: 11,
+};

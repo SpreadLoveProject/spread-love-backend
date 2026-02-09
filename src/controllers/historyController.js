@@ -1,14 +1,17 @@
-import { SUCCESS_MESSAGE } from "../constants/common.js";
+import { PAGINATION, SUCCESS_MESSAGE } from "../constants/common.js";
 import * as historyService from "../services/historyService.js";
 
 const getHistories = async (req, res, next) => {
   try {
     const userId = req.userId;
-    const histories = await historyService.getHistories(userId);
+    const page = Number(req.query.page) || PAGINATION.DEFAULT_PAGE;
+    const limit = Number(req.query.limit) || PAGINATION.DEFAULT_LIMIT;
+
+    const { histories, pagination } = await historyService.getHistories(userId, page, limit);
 
     res.json({
       success: true,
-      data: { histories },
+      data: { histories, pagination },
     });
   } catch (error) {
     next(error);
