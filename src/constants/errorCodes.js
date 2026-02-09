@@ -17,6 +17,7 @@ export const ERROR_CODE = {
   INVALID_GUEST_TOKEN: "INVALID_GUEST_TOKEN",
   INVALID_USER_TOKEN: "INVALID_USER_TOKEN",
   UNKNOWN_TOKEN_TYPE: "UNKNOWN_TOKEN_TYPE",
+  LOGIN_REQUIRED: "LOGIN_REQUIRED",
   RATE_LIMIT_EXCEEDED: "RATE_LIMIT_EXCEEDED",
   IP_NOT_FOUND: "IP_NOT_FOUND",
 };
@@ -31,6 +32,7 @@ export const ERROR_MESSAGE = {
   INVALID_GUEST_TOKEN: "유효하지 않은 게스트 토큰입니다.",
   INVALID_USER_TOKEN: "유효하지 않은 사용자 토큰입니다.",
   UNKNOWN_TOKEN_TYPE: "알 수 없는 토큰 형식입니다. guest_ 또는 user_ prefix가 필요합니다.",
+  LOGIN_REQUIRED: "로그인이 필요한 기능입니다.",
   USER_NOT_FOUND: "사용자를 찾을 수 없습니다.",
   IMAGE_REQUIRED: "이미지 파일이 필요합니다.",
   IMAGE_URL_REQUIRED: "이미지 URL이 필요합니다.",
