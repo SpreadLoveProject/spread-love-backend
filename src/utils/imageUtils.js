@@ -1,18 +1,18 @@
 import sharp from "sharp";
 
 import { UPLOAD } from "../constants/common.js";
-import { ERROR_MESSAGE } from "../constants/errorCodes.js";
+import { AppError } from "../errors/AppError.js";
 
 const urlToDataUrl = async (imageUrl) => {
   const response = await fetch(imageUrl);
 
   if (!response.ok) {
-    throw new Error(`${ERROR_MESSAGE.IMAGE_FETCH_FAILED}: ${response.status}`);
+    throw new AppError("IMAGE_FETCH_FAILED");
   }
 
   const contentLength = response.headers.get("content-length");
   if (contentLength && parseInt(contentLength, 10) > UPLOAD.MAX_FILE_SIZE) {
-    throw new Error(ERROR_MESSAGE.FILE_SIZE_EXCEEDED);
+    throw new AppError("VALIDATION_FILE_SIZE_EXCEEDED");
   }
 
   const contentType = response.headers.get("content-type");
@@ -20,7 +20,7 @@ const urlToDataUrl = async (imageUrl) => {
   const rawBuffer = await response.arrayBuffer();
 
   if (rawBuffer.byteLength > UPLOAD.MAX_FILE_SIZE) {
-    throw new Error(ERROR_MESSAGE.FILE_SIZE_EXCEEDED);
+    throw new AppError("VALIDATION_FILE_SIZE_EXCEEDED");
   }
 
   if (isSvg) {

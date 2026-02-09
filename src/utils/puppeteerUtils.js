@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 
 import { PUPPETEER } from "../constants/common.js";
-import { ERROR_MESSAGE } from "../constants/errorCodes.js";
+import { AppError } from "../errors/AppError.js";
 
 const captureFullPage = async (url) => {
   const browser = await puppeteer.launch({
@@ -36,14 +36,14 @@ const captureFullPage = async (url) => {
     return `data:image/png;base64,${base64}`;
   } catch (error) {
     if (error.message.includes("net::ERR_NAME_NOT_RESOLVED")) {
-      throw new Error(ERROR_MESSAGE.INVALID_URL);
+      throw new AppError("VALIDATION_URL_INVALID");
     }
 
     if (error.message.includes("Timeout")) {
-      throw new Error(ERROR_MESSAGE.PAGE_LOAD_TIMEOUT);
+      throw new AppError("PUPPETEER_PAGE_TIMEOUT");
     }
 
-    throw new Error(`${ERROR_MESSAGE.PAGE_CAPTURE_FAILED}: ${error.message}`);
+    throw new AppError("PUPPETEER_CAPTURE_FAILED");
   } finally {
     await browser.close();
   }
