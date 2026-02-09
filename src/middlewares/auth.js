@@ -52,8 +52,7 @@ const authenticate = async (req, res, next) => {
       const { data, error } = await supabase.auth.getUser(token);
 
       if (error || !data.user) {
-        const isExpired =
-          error?.message?.toLowerCase().includes("expired") || error?.status === 401;
+        const isExpired = error?.message?.toLowerCase().includes("expired");
 
         if (isExpired) {
           return res.status(HTTP_STATUS.UNAUTHORIZED).json({
@@ -88,8 +87,8 @@ const requireAuth = (req, res, next) => {
   if (!req.userId) {
     return res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
-      errorCode: ERROR_CODE.INVALID_USER_TOKEN,
-      error: ERROR_MESSAGE.UNAUTHORIZED,
+      errorCode: ERROR_CODE.LOGIN_REQUIRED,
+      error: ERROR_MESSAGE.LOGIN_REQUIRED,
     });
   }
   next();
