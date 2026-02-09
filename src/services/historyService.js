@@ -1,6 +1,7 @@
 import { supabase } from "../config/supabase.js";
 import { PAGINATION } from "../constants/common.js";
-import { ERROR_MESSAGE, HTTP_STATUS, SUPABASE_ERROR } from "../constants/errorCodes.js";
+import { SUPABASE_ERROR } from "../constants/errorCodes.js";
+import { AppError } from "../errors/AppError.js";
 
 const saveHistory = async ({ userId, url, title, summary, contentType }) => {
   const { data, error } = await supabase
@@ -68,19 +69,13 @@ const deleteHistory = async (userId, historyId) => {
     .select("id");
 
   if (error && error.code === SUPABASE_ERROR.INVALID_UUID) {
-    const badRequestError = new Error(ERROR_MESSAGE.BAD_REQUEST);
-
-    badRequestError.status = HTTP_STATUS.BAD_REQUEST;
-    throw badRequestError;
+    throw new AppError("VALIDATION_BAD_REQUEST");
   }
 
   if (error) throw error;
 
   if (!data || data.length === 0) {
-    const notFoundError = new Error(ERROR_MESSAGE.HISTORY_NOT_FOUND);
-
-    notFoundError.status = HTTP_STATUS.NOT_FOUND;
-    throw notFoundError;
+    throw new AppError("RESOURCE_HISTORY_NOT_FOUND");
   }
 
   return;
