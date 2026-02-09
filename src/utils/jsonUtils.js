@@ -1,3 +1,5 @@
+import { AppError } from "../errors/AppError.js";
+
 export const parseJsonResponse = (content) => {
   let cleaned = content.trim();
 
@@ -14,6 +16,6 @@ export const parseJsonResponse = (content) => {
   try {
     return JSON.parse(cleaned.trim());
   } catch {
-    throw new Error("요약 생성에 실패했습니다. 잠시 후 다시 시도해주세요");
+    throw new AppError("PARSE_JSON_FAILED");
   }
 };
