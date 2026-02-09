@@ -1,6 +1,6 @@
 import { redis } from "../config/redis.js";
 import { RATE_LIMIT } from "../constants/common.js";
-import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
+import { ERROR_CODE, ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
 import { getRateLimitInfo } from "../utils/rateLimitUtils.js";
 
 const rateLimit = async (req, res, next) => {
@@ -8,7 +8,11 @@ const rateLimit = async (req, res, next) => {
     const { id, limit, key } = getRateLimitInfo(req);
 
     if (!id) {
-      return next();
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        errorCode: ERROR_CODE.TOKEN_REQUIRED,
+        error: ERROR_MESSAGE.TOKEN_REQUIRED,
+      });
     }
 
     const currentCount = await redis.incr(key);
@@ -17,12 +21,10 @@ const rateLimit = async (req, res, next) => {
       await redis.expire(key, RATE_LIMIT.TTL);
     }
 
-    const remainingRequests = Math.max(0, limit - currentCount);
-    res.set("RateLimit-Remaining", String(remainingRequests));
-
     if (currentCount > limit) {
       return res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
         success: false,
+        errorCode: ERROR_CODE.RATE_LIMIT_EXCEEDED,
         error: ERROR_MESSAGE.RATE_LIMIT_EXCEEDED,
       });
     }
