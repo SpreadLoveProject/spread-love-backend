@@ -35,38 +35,6 @@ const getHistories = async (userId) => {
   }));
 };
 
-const getHistoryById = async (userId, historyId) => {
-  const { data, error } = await supabase
-    .from("histories")
-    .select("id, content_type, url, contents, created_at")
-    .eq("id", historyId)
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (error && error.code === SUPABASE_ERROR.INVALID_UUID) {
-    const badRequestError = new Error(ERROR_MESSAGE.BAD_REQUEST);
-    badRequestError.status = HTTP_STATUS.BAD_REQUEST;
-    throw badRequestError;
-  }
-
-  if (error) throw error;
-
-  if (!data) {
-    const notFoundError = new Error(ERROR_MESSAGE.HISTORY_NOT_FOUND);
-
-    notFoundError.status = HTTP_STATUS.NOT_FOUND;
-    throw notFoundError;
-  }
-
-  return {
-    id: data.id,
-    contentType: data.content_type,
-    url: data.url,
-    contents: data.contents,
-    createdAt: data.created_at,
-  };
-};
-
 const deleteHistory = async (userId, historyId) => {
   const { data, error } = await supabase
     .from("histories")
@@ -94,4 +62,4 @@ const deleteHistory = async (userId, historyId) => {
   return;
 };
 
-export { deleteHistory, getHistories, getHistoryById, saveHistory };
+export { deleteHistory, getHistories, saveHistory };
