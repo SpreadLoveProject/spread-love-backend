@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 
+import logger from "../config/logger.js";
 import { ERROR_CONFIG } from "../constants/errorCodes.js";
 import { AppError } from "../errors/AppError.js";
 
@@ -11,7 +12,7 @@ const sendError = (res, code, config) => {
 };
 
 export const errorHandler = (err, req, res, _next) => {
-  console.error(err.stack);
+  logger.error(err.stack);
 
   if (err instanceof AppError) {
     return sendError(res, err.code, err);
