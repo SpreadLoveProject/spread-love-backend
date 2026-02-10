@@ -16,7 +16,11 @@ const urlToDataUrl = async (imageUrl) => {
   }
 
   const contentType = response.headers.get("content-type");
-  const isSvg = imageUrl.endsWith(".svg") || (contentType && contentType.includes("svg"));
+  if (!contentType?.startsWith("image/")) {
+    throw new AppError("VALIDATION_IMAGE_TYPE_INVALID");
+  }
+
+  const isSvg = imageUrl.endsWith(".svg") || contentType.includes("svg");
   const rawBuffer = await response.arrayBuffer();
 
   if (rawBuffer.byteLength > UPLOAD.MAX_FILE_SIZE) {
