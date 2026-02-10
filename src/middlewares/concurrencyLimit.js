@@ -1,5 +1,5 @@
 import { CONCURRENCY } from "../constants/common.js";
-import { ERROR_MESSAGE, HTTP_STATUS } from "../constants/errorCodes.js";
+import { AppError } from "../errors/AppError.js";
 
 const state = {
   activeRequests: 0,
@@ -7,10 +7,7 @@ const state = {
 
 const concurrencyLimit = (req, res, next) => {
   if (state.activeRequests >= CONCURRENCY.MAX_CAPTURES) {
-    return res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
-      success: false,
-      error: ERROR_MESSAGE.CONCURRENCY_LIMIT_EXCEEDED,
-    });
+    throw new AppError("RATE_LIMIT_CONCURRENCY_EXCEEDED");
   }
 
   state.activeRequests++;
@@ -21,4 +18,5 @@ const concurrencyLimit = (req, res, next) => {
 
   next();
 };
+
 export { concurrencyLimit };
