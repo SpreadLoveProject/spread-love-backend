@@ -1,4 +1,5 @@
 import env from "../config/env.js";
+import logger from "../config/logger.js";
 import { openai } from "../config/openai.js";
 import { parseJsonResponse } from "../utils/jsonUtils.js";
 import { getSummaryPrompt } from "../utils/promptUtils.js";
@@ -40,7 +41,7 @@ const summarize = async ({ url, userId, settings }) => {
       contentType: "summary",
     });
   } catch (error) {
-    console.error(error.message);
+    logger.error(error.message);
   }
 
   return {

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 
 import { signToken, verifyToken } from "../config/jwt.js";
+import logger from "../config/logger.js";
 import { redis } from "../config/redis.js";
 import { GUEST_TOKEN, RATE_LIMIT } from "../constants/common.js";
 
@@ -26,8 +27,8 @@ const issueOrReuseGuestToken = async (clientIP) => {
           remaining: Math.max(0, RATE_LIMIT.GUEST_LIMIT - (Number(used) || 0)),
         };
       }
-    } catch (error) {
-      console.debug("기존 토큰 검증 실패, 새 토큰 발급:", error.message);
+    } catch {
+      logger.debug("기존 토큰을 사용할 수 없어 새 토큰을 발급합니다.");
     }
   }
 

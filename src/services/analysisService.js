@@ -1,4 +1,5 @@
 import env from "../config/env.js";
+import logger from "../config/logger.js";
 import { openai } from "../config/openai.js";
 import { urlToDataUrl } from "../utils/imageUtils.js";
 import { parseJsonResponse } from "../utils/jsonUtils.js";
@@ -40,7 +41,7 @@ const analyze = async ({ imageUrl, pageUrl, userId, settings }) => {
       contentType: "analysis",
     });
   } catch (error) {
-    console.error(error.message);
+    logger.error(error.message);
   }
 
   return {
