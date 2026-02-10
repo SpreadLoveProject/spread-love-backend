@@ -135,6 +135,10 @@ export const ERROR_CONFIG = {
     status: HTTP_STATUS.INTERNAL_ERROR,
     message: "서버 오류가 발생했습니다.",
   },
+  SYSTEM_NOT_FOUND: {
+    status: HTTP_STATUS.NOT_FOUND,
+    message: "요청한 경로를 찾을 수 없습니다.",
+  },
   SYSTEM_INTERNAL_ERROR: {
     status: HTTP_STATUS.INTERNAL_ERROR,
     message: "서버 오류가 발생했습니다.",
