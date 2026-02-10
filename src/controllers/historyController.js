@@ -1,4 +1,5 @@
 import { PAGINATION, SUCCESS_MESSAGE } from "../constants/common.js";
+import { AppError } from "../errors/AppError.js";
 import * as historyService from "../services/historyService.js";
 
 const getHistories = async (req, res) => {
@@ -17,6 +18,10 @@ const getHistories = async (req, res) => {
 const deleteHistory = async (req, res) => {
   const userId = req.userId;
   const { id: historyId } = req.params;
+
+  if (!historyId) {
+    throw new AppError("VALIDATION_HISTORY_ID_REQUIRED");
+  }
 
   await historyService.deleteHistory(userId, historyId);
 
