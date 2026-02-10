@@ -83,10 +83,6 @@ export const ERROR_CONFIG = {
     status: HTTP_STATUS.NOT_FOUND,
     message: "히스토리를 찾을 수 없습니다.",
   },
-  RESOURCE_USER_NOT_FOUND: {
-    status: HTTP_STATUS.NOT_FOUND,
-    message: "사용자를 찾을 수 없습니다.",
-  },
   RATE_LIMIT_EXCEEDED: {
     status: HTTP_STATUS.TOO_MANY_REQUESTS,
     message: "일일 사용 횟수를 초과했습니다.",

@@ -30,13 +30,18 @@ const analyze = async ({ imageUrl, pageUrl, userId, settings }) => {
     };
   }
 
-  const historyId = await saveHistory({
-    userId,
-    url: pageUrl,
-    title: parsedAnalysis.title,
-    summary: parsedAnalysis.summary,
-    contentType: "analysis",
-  });
+  let historyId = null;
+  try {
+    historyId = await saveHistory({
+      userId,
+      url: pageUrl,
+      title: parsedAnalysis.title,
+      summary: parsedAnalysis.summary,
+      contentType: "analysis",
+    });
+  } catch (error) {
+    console.error(error.message);
+  }
 
   return {
     title: parsedAnalysis.title,

@@ -30,13 +30,18 @@ const summarize = async ({ url, userId, settings }) => {
     };
   }
 
-  const historyId = await saveHistory({
-    userId,
-    url,
-    title: parsedSummary.title,
-    summary: parsedSummary.summary,
-    contentType: "summary",
-  });
+  let historyId = null;
+  try {
+    historyId = await saveHistory({
+      userId,
+      url,
+      title: parsedSummary.title,
+      summary: parsedSummary.summary,
+      contentType: "summary",
+    });
+  } catch (error) {
+    console.error(error.message);
+  }
 
   return {
     title: parsedSummary.title,
