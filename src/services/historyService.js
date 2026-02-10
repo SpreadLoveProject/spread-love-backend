@@ -15,7 +15,7 @@ const saveHistory = async ({ userId, url, title, summary, contentType }) => {
     .select("id")
     .single();
 
-  if (error) throw error;
+  if (error) throw new AppError("DB_ERROR");
 
   return data?.id || null;
 };
@@ -32,7 +32,7 @@ const getHistories = async (
     .select("*", { count: "exact", head: true })
     .eq("user_id", userId);
 
-  if (countError) throw countError;
+  if (countError) throw new AppError("DB_ERROR");
 
   const { data, error } = await supabase
     .from("histories")
@@ -41,7 +41,7 @@ const getHistories = async (
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
-  if (error) throw error;
+  if (error) throw new AppError("DB_ERROR");
 
   return {
     histories: data.map((item) => ({
@@ -72,7 +72,7 @@ const deleteHistory = async (userId, historyId) => {
     throw new AppError("VALIDATION_BAD_REQUEST");
   }
 
-  if (error) throw error;
+  if (error) throw new AppError("DB_ERROR");
 
   if (!data || data.length === 0) {
     throw new AppError("RESOURCE_HISTORY_NOT_FOUND");
