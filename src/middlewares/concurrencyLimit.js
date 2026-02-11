@@ -12,7 +12,7 @@ const concurrencyLimit = (req, res, next) => {
 
   state.activeRequests++;
 
-  res.on("finish", () => {
+  res.on("close", () => {
     state.activeRequests--;
   });
 
