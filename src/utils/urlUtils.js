@@ -9,7 +9,7 @@ const BLOCKED_PATTERNS = [
   /^0\./,
 ];
 
-const BLOCKED_HOSTS = ["localhost", "[::1]", "[::ffff:169.254.169.254]"];
+const BLOCKED_HOSTS = ["localhost", "[::1]", "[::ffff:a9fe:a9fe]"];
 
 export const assertExternalUrl = (url) => {
   const { hostname } = new URL(url);
