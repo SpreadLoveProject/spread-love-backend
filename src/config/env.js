@@ -1,6 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+const required = ["SUPABASE_URL", "SUPABASE_ANON_KEY", "OPENAI_API_KEY", "REDIS_URL", "JWT_SECRET"];
+const missing = required.filter((key) => !process.env[key]?.trim());
+
+if (missing.length > 0) {
+  throw new Error(`필수 환경변수가 설정되지 않았습니다: ${missing.join(", ")}`);
+}
+
 export default {
   NODE_ENV: process.env.NODE_ENV || "development",
   PORT: parseInt(process.env.PORT, 10) || 3000,
