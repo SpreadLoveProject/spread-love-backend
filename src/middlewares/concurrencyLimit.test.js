@@ -13,22 +13,22 @@ vi.mock("../constants/common.js", async (importOriginal) => {
 describe("concurrencyLimit", () => {
   let mockReq;
   let mockNext;
-  let finishCallbacks;
+  let closeCallbacks;
 
   const createMockRes = () => ({
     on: vi.fn((event, cb) => {
-      if (event === "finish") finishCallbacks.push(cb);
+      if (event === "close") closeCallbacks.push(cb);
     }),
   });
 
   beforeEach(() => {
     mockReq = {};
     mockNext = vi.fn();
-    finishCallbacks = [];
+    closeCallbacks = [];
   });
 
   afterEach(() => {
-    finishCallbacks.forEach((cb) => cb());
+    closeCallbacks.forEach((cb) => cb());
   });
 
   it("동시 요청이 제한 이하이면 next를 호출한다", () => {
@@ -46,9 +46,9 @@ describe("concurrencyLimit", () => {
     );
   });
 
-  it("응답 완료 시 activeRequests가 감소한다", () => {
-    const finishOne = () => {
-      const cb = finishCallbacks.shift();
+  it("연결이 끊기면 activeRequests가 감소한다", () => {
+    const closeOne = () => {
+      const cb = closeCallbacks.shift();
       if (cb) cb();
     };
 
@@ -57,7 +57,7 @@ describe("concurrencyLimit", () => {
 
     expect(() => concurrencyLimit(mockReq, createMockRes(), mockNext)).toThrow();
 
-    finishOne();
+    closeOne();
 
     expect(() => concurrencyLimit(mockReq, createMockRes(), mockNext)).not.toThrow();
   });
