@@ -1,5 +1,19 @@
 import { beforeEach, vi } from "vitest";
 
+vi.mock("../../src/config/env.js", () => ({
+  default: {
+    NODE_ENV: "test",
+    PORT: 3000,
+    CORS_ORIGIN: "http://localhost:5173",
+    SUPABASE_URL: "https://test.supabase.co",
+    SUPABASE_ANON_KEY: "test-anon-key",
+    OPENAI_API_KEY: "test-openai-key",
+    OPENAI_MODEL: "gpt-4o-mini",
+    REDIS_URL: "redis://localhost:6379",
+    JWT_SECRET: "test-jwt-secret-for-integration-tests",
+  },
+}));
+
 vi.mock("../../src/config/logger.js", () => ({
   default: {
     info: vi.fn(),
