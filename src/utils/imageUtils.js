@@ -2,8 +2,10 @@ import sharp from "sharp";
 
 import { UPLOAD } from "../constants/common.js";
 import { AppError } from "../errors/AppError.js";
+import { assertExternalUrl } from "./urlUtils.js";
 
 const urlToDataUrl = async (imageUrl) => {
+  assertExternalUrl(imageUrl);
   const response = await fetch(imageUrl);
 
   if (!response.ok) {

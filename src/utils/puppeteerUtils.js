@@ -2,10 +2,13 @@ import puppeteer from "puppeteer";
 
 import { PUPPETEER } from "../constants/common.js";
 import { AppError } from "../errors/AppError.js";
+import { assertExternalUrl } from "./urlUtils.js";
 
 const captureFullPage = async (url) => {
+  assertExternalUrl(url);
   const browser = await puppeteer.launch({
     headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
   });
 
   try {

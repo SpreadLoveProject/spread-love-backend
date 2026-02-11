@@ -10,6 +10,10 @@ const createAnalysis = async (req, res) => {
     throw new AppError("VALIDATION_IMAGE_URL_REQUIRED");
   }
 
+  if (!URL.canParse(imageUrl)) {
+    throw new AppError("VALIDATION_URL_INVALID");
+  }
+
   const userSettings = settings || DEFAULT_SETTINGS;
 
   const analysisResult = await analyze({ imageUrl, pageUrl, userId, settings: userSettings });
