@@ -10,6 +10,10 @@ const createSummary = async (req, res) => {
     throw new AppError("VALIDATION_URL_REQUIRED");
   }
 
+  if (!URL.canParse(url)) {
+    throw new AppError("VALIDATION_URL_INVALID");
+  }
+
   const userSettings = settings || DEFAULT_SETTINGS;
 
   const summaryResult = await summarize({ url, userId, settings: userSettings });
