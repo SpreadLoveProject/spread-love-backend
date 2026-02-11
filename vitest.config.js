@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     environment: "node",
     setupFiles: ["./vitest.setup.js"],
-    include: ["src/**/*.test.js"],
+    include: ["src/**/*.test.js", "tests/**/*.test.js"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

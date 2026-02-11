@@ -1,14 +1,14 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = "test-jwt-secret";
+import env from "../../src/config/env.js";
 
 export const createGuestToken = (guestId = "test-guest-id") => {
-  const token = jwt.sign({ guestId }, JWT_SECRET, { expiresIn: "24h" });
+  const token = jwt.sign({ guestId }, env.JWT_SECRET, { expiresIn: "24h" });
   return `Bearer guest_${token}`;
 };
 
 export const createExpiredGuestToken = (guestId = "test-guest-id") => {
-  const token = jwt.sign({ guestId }, JWT_SECRET, { expiresIn: "-1s" });
+  const token = jwt.sign({ guestId }, env.JWT_SECRET, { expiresIn: "-1s" });
   return `Bearer guest_${token}`;
 };
 
