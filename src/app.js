@@ -12,7 +12,8 @@ import summaryRoutes from "./routes/summaryRoutes.js";
 
 const app = express();
 
-app.use(express.json());
+app.set("trust proxy", 1);
+app.use(express.json({ limit: "1mb" }));
 
 app.use(
   cors({
