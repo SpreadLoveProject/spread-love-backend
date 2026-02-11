@@ -21,10 +21,24 @@ vi.mock("puppeteer", () => ({
   },
 }));
 
+vi.mock("./urlUtils.js", () => ({
+  assertExternalUrl: vi.fn(),
+}));
+
 const { default: puppeteer } = await import("puppeteer");
 
 describe("puppeteerUtils", () => {
   describe("captureFullPage", () => {
+    it("assertExternalUrl이 에러를 던지면 에러가 전파된다", async () => {
+      const { assertExternalUrl } = await import("./urlUtils.js");
+      const validationError = new Error("Invalid URL");
+      assertExternalUrl.mockImplementationOnce(() => {
+        throw validationError;
+      });
+
+      await expect(captureFullPage("http://localhost/page")).rejects.toThrow(validationError);
+    });
+
     it("웹페이지를 스크린샷으로 캡처하고 base64 data URL을 반환한다", async () => {
       const mockPage = createMockPage();
       const mockBrowser = createMockBrowser(mockPage);

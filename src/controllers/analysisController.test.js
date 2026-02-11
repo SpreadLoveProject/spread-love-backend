@@ -31,6 +31,14 @@ describe("analysisController", () => {
       );
     });
 
+    it("imageUrl이 유효한 URL 형식이 아니면 VALIDATION_URL_INVALID 에러를 던진다", async () => {
+      mockReq.body = { imageUrl: "not-a-valid-url" };
+
+      await expect(createAnalysis(mockReq, mockRes)).rejects.toThrow(
+        expect.objectContaining({ code: "VALIDATION_URL_INVALID" }),
+      );
+    });
+
     it("settings가 없으면 DEFAULT_SETTINGS를 사용한다", async () => {
       mockReq.body = { imageUrl: "https://example.com/img.png", pageUrl: "https://example.com" };
       analyze.mockResolvedValue({ analysis: "분석 결과" });

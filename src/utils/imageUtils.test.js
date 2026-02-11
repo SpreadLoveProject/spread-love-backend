@@ -12,6 +12,10 @@ vi.mock("sharp", () => ({
   })),
 }));
 
+vi.mock("./urlUtils.js", () => ({
+  assertExternalUrl: vi.fn(),
+}));
+
 const createMockResponse = ({ ok = true, headers = {}, arrayBuffer } = {}) => {
   const defaultHeaders = {
     "content-type": "image/png",
@@ -31,6 +35,17 @@ describe("imageUtils", () => {
   describe("urlToDataUrl", () => {
     afterEach(() => {
       vi.unstubAllGlobals();
+      vi.clearAllMocks();
+    });
+
+    it("assertExternalUrl이 에러를 던지면 에러가 전파된다", async () => {
+      const { assertExternalUrl } = await import("./urlUtils.js");
+      const validationError = new Error("Invalid URL");
+      assertExternalUrl.mockImplementationOnce(() => {
+        throw validationError;
+      });
+
+      await expect(urlToDataUrl("http://localhost/img.png")).rejects.toThrow(validationError);
     });
 
     it("fetch 실패 시 IMAGE_FETCH_FAILED 에러를 던진다", async () => {
