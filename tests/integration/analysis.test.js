@@ -124,4 +124,35 @@ describe("POST /analyses", () => {
     expect(res.status).toBe(429);
     expect(res.body.error.code).toBe("RATE_LIMIT_EXCEEDED");
   });
+
+  it("분석 서비스 레이어 예외 발생 시 500 에러를 반환한다", async () => {
+    urlToDataUrl.mockResolvedValue("data:image/png;base64,mock");
+    openai.chat.completions.create.mockRejectedValue(new Error("OpenAI API 에러"));
+
+    const res = await request(app)
+      .post("/analyses")
+      .set("Authorization", createGuestToken())
+      .send({ imageUrl: "https://example.com/image.jpg" });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe("SYSTEM_INTERNAL_ERROR");
+  });
+
+  it("settings 미제공 시 DEFAULT_SETTINGS를 사용한다", async () => {
+    urlToDataUrl.mockResolvedValue("data:image/png;base64,mock");
+    openai.chat.completions.create.mockResolvedValue({
+      choices: [{ message: { content: JSON.stringify({ title: "Test", summary: "Summary" }) } }],
+    });
+
+    await request(app)
+      .post("/analyses")
+      .set("Authorization", createGuestToken())
+      .send({ imageUrl: "https://example.com/image.jpg" });
+
+    const callArgs = openai.chat.completions.create.mock.calls[0][0];
+    const systemPrompt = callArgs.messages[0].content;
+
+    expect(systemPrompt).toContain("5문장으로 요약하세요");
+    expect(systemPrompt).toContain("명확하고 중립적인 말투로 설명하세요");
+  });
 });
