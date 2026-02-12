@@ -65,5 +65,5 @@ vi.mock("../../src/utils/imageUtils.js", () => ({
 }));
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
 });

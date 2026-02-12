@@ -8,7 +8,7 @@ import app from "../../src/app.js";
 import env from "../../src/config/env.js";
 import { redis } from "../../src/config/redis.js";
 import { GUEST_TOKEN, RATE_LIMIT } from "../../src/constants/common.js";
-import { createGuestToken } from "./tokenHelpers.js";
+import { createExpiredGuestToken, createGuestToken } from "./tokenHelpers.js";
 
 describe("POST /auth/guest", () => {
   it("기존 토큰이 없으면 새 토큰을 발급한다", async () => {
@@ -95,5 +95,14 @@ describe("GET /auth/rate-limit", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.data.remaining).toBe(RATE_LIMIT.GUEST_LIMIT);
+  });
+
+  it("만료된 토큰으로 요청 시 401에러를 반환한다", async () => {
+    const res = await request(app)
+      .get("/auth/rate-limit")
+      .set("Authorization", createExpiredGuestToken());
+
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe("AUTH_GUEST_TOKEN_EXPIRED");
   });
 });
