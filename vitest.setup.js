@@ -14,7 +14,7 @@ const TEST_ENV = {
 const originalEnv = { ...process.env };
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   Object.assign(process.env, TEST_ENV);
 });
 

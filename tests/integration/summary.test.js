@@ -134,12 +134,14 @@ describe("POST /summaries", () => {
       choices: [{ message: { content: JSON.stringify({ title: "Test", summary: "Summary" }) } }],
     });
 
+    const token = createGuestToken();
+
     const requests = Array(4)
       .fill(null)
       .map(() =>
         request(app)
           .post("/summaries")
-          .set("Authorization", createGuestToken())
+          .set("Authorization", token)
           .send({ url: "https://example.com" }),
       );
 
