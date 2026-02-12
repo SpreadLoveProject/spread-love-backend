@@ -171,6 +171,32 @@ describe("GET /histories", () => {
     expect(res.body.data.histories).toEqual([]);
     expect(res.body.data.pagination.totalCount).toBe(0);
   });
+
+  it("히스토리 조회 중 DB 에러 발생 시 500 에러를 반환한다", async () => {
+    supabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: "user-123" } },
+      error: null,
+    });
+
+    const mockCountEq = vi.fn().mockResolvedValue({
+      count: null,
+      error: { message: "Database connection failed" },
+    });
+    const mockCountSelect = vi.fn().mockReturnValue({ eq: mockCountEq });
+
+    supabase.from.mockReturnValue({
+      select: (fields, options) => {
+        if (options?.count === "exact") {
+          return mockCountSelect(fields, options);
+        }
+      },
+    });
+
+    const res = await request(app).get("/histories").set("Authorization", createUserToken());
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe("DB_ERROR");
+  });
 });
 
 describe("DELETE /histories/:id", () => {
@@ -260,5 +286,28 @@ describe("DELETE /histories/:id", () => {
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe("RESOURCE_HISTORY_NOT_FOUND");
+  });
+
+  it("히스토리 삭제 중 DB 에러 발생 시 500 에러를 반환한다", async () => {
+    supabase.auth.getUser.mockResolvedValue({
+      data: { user: { id: "user-123" } },
+      error: null,
+    });
+
+    const mockSelect = vi.fn().mockResolvedValue({
+      data: null,
+      error: { message: "Delete operation failed" },
+    });
+    const mockEq2 = vi.fn().mockReturnValue({ select: mockSelect });
+    const mockEq1 = vi.fn().mockReturnValue({ eq: mockEq2 });
+    const mockDelete = vi.fn().mockReturnValue({ eq: mockEq1 });
+    supabase.from.mockReturnValue({ delete: mockDelete });
+
+    const res = await request(app)
+      .delete("/histories/history-1")
+      .set("Authorization", createUserToken());
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe("DB_ERROR");
   });
 });

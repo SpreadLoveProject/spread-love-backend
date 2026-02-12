@@ -150,4 +150,34 @@ describe("POST /summaries", () => {
 
     expect(statuses.filter((s) => s === 429).length).toBeGreaterThanOrEqual(1);
   });
+
+  it("요약 서비스 레이어 예외 발생 시 500 에러를 반환한다", async () => {
+    captureFullPage.mockRejectedValue(new Error("Puppeteer 에러"));
+
+    const res = await request(app)
+      .post("/summaries")
+      .set("Authorization", createGuestToken())
+      .send({ url: "https://example.com" });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe("SYSTEM_INTERNAL_ERROR");
+  });
+
+  it("settings 미제공 시 DEFAULT_SETTINGS를 사용한다", async () => {
+    captureFullPage.mockResolvedValue("data:image/png;base64,mock-screenshot");
+    openai.chat.completions.create.mockResolvedValue({
+      choices: [{ message: { content: JSON.stringify({ title: "Test", summary: "Summary" }) } }],
+    });
+
+    await request(app)
+      .post("/summaries")
+      .set("Authorization", createGuestToken())
+      .send({ url: "https://example.com" });
+
+    const callArgs = openai.chat.completions.create.mock.calls[0][0];
+    const systemPrompt = callArgs.messages[0].content;
+
+    expect(systemPrompt).toContain("5문장으로 요약하세요");
+    expect(systemPrompt).toContain("명확하고 중립적인 말투로 설명하세요");
+  });
 });
