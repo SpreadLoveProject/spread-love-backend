@@ -1,7 +1,7 @@
 import { redis } from "../config/redis.js";
 import { supabase } from "../config/supabase.js";
 
-const healthCheck = async (req, res) => {
+const healthCheck = async (_req, res) => {
   const supabaseStatus = await supabase.auth
     .getSession()
     .then(({ error }) => (error ? "disconnected" : "connected"))
@@ -13,10 +13,12 @@ const healthCheck = async (req, res) => {
     .catch(() => "disconnected");
 
   res.status(200).json({
-    status: "OK",
-    timestamp: new Date(),
-    supabase: supabaseStatus,
-    redis: redisStatus,
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    services: {
+      supabase: supabaseStatus,
+      redis: redisStatus,
+    },
   });
 };
 
