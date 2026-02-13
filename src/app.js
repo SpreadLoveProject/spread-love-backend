@@ -2,29 +2,64 @@ import cors from "cors";
 import express from "express";
 
 import env from "./config/env.js";
+import { ERROR_CONFIG } from "./constants/errorCodes.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
+import analysisRoutes from "./routes/analysisRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import healthRoutes from "./routes/healthRoutes.js";
+import historyRoutes from "./routes/historyRoutes.js";
+import summaryRoutes from "./routes/summaryRoutes.js";
 
 const app = express();
 
-app.use(express.json());
+app.set("trust proxy", 1);
+app.use(express.json({ limit: "1mb" }));
 
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const allowedExtensionIds = env.ALLOWED_EXTENSION_IDS?.split(",").filter(Boolean) || [];
+
+      if (allowedExtensionIds.length > 0) {
+        const isAllowedExtension = allowedExtensionIds.some(
+          (id) => origin === `chrome-extension://${id.trim()}`,
+        );
+
+        if (isAllowedExtension) {
+          return callback(null, true);
+        }
+      } else if (env.NODE_ENV === "development") {
+        if (origin.startsWith("chrome-extension://")) {
+          return callback(null, true);
+        }
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
   }),
 );
 
+app.use("/auth", authRoutes);
 app.use("/health", healthRoutes);
+app.use("/summaries", summaryRoutes);
+app.use("/histories", historyRoutes);
+app.use("/analyses", analysisRoutes);
 
-app.use((err, req, res, _next) => {
-  console.error(err.stack); // eslint-disable-line no-console
-  res.status(err.status || 500).json({
-    message: err.message || "Internal Server Error",
-    ...(env.NODE_ENV === "development" && { stack: err.stack }),
+app.use((req, res) => {
+  const config = ERROR_CONFIG.SYSTEM_NOT_FOUND;
+  res.status(config.status).json({
+    success: false,
+    error: { code: "SYSTEM_NOT_FOUND", message: config.message },
   });
 });
+
+app.use(errorHandler);
 
 export default app;

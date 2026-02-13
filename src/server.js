@@ -1,15 +1,19 @@
 import app from "./app.js";
 import env from "./config/env.js";
+import logger from "./config/logger.js";
+import { redis } from "./config/redis.js";
 
-const startServer = async () => {
-  try {
-    app.listen(env.PORT, () => {
-      console.log(`서버가 포트 ${env.PORT}에서 실행 중입니다`);
-    });
-  } catch (error) {
-    console.error("서버 시작 실패:", error);
-    process.exit(1);
-  }
+const server = app.listen(env.PORT, () => {
+  logger.info(`서버가 포트 ${env.PORT}에서 실행 중입니다`);
+});
+
+const shutdown = () => {
+  logger.info("서버를 종료합니다...");
+  server.close(() => {
+    redis.quit();
+    process.exit(0);
+  });
 };
 
-startServer();
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
