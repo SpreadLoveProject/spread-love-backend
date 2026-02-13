@@ -20,4 +20,5 @@ export default {
   DEV_USER_ID: process.env.DEV_USER_ID,
   REDIS_URL: process.env.REDIS_URL,
   JWT_SECRET: process.env.JWT_SECRET,
+  ALLOWED_EXTENSION_IDS: process.env.ALLOWED_EXTENSION_IDS,
 };
