@@ -22,4 +22,4 @@ dump.rdb
 
 coverage/
 
-nginx/nginx.conf
+*.backup
