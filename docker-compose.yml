@@ -24,7 +24,7 @@ services:
     expose:
       - "3000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV}
       - PORT=3000
       - CORS_ORIGIN=${CORS_ORIGIN}
       - REDIS_URL=redis://redis:6379
@@ -32,6 +32,7 @@ services:
       - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - JWT_SECRET=${JWT_SECRET}
+      - ALLOWED_EXTENSION_IDS=${ALLOWED_EXTENSION_IDS}
     depends_on:
       redis:
         condition: service_healthy
