@@ -18,16 +18,27 @@ app.use(express.json({ limit: "1mb" }));
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (
-        !origin ||
-        origin.startsWith("chrome-extension://") ||
-        origin.startsWith("moz-extension://") ||
-        origin === env.CORS_ORIGIN
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+      if (!origin) {
+        return callback(null, true);
       }
+
+      const allowedExtensionIds = env.ALLOWED_EXTENSION_IDS?.split(",").filter(Boolean) || [];
+
+      if (allowedExtensionIds.length > 0) {
+        const isAllowedExtension = allowedExtensionIds.some(
+          (id) => origin === `chrome-extension://${id.trim()}`,
+        );
+
+        if (isAllowedExtension) {
+          return callback(null, true);
+        }
+      } else {
+        if (origin.startsWith("chrome-extension://")) {
+          return callback(null, true);
+        }
+      }
+
+      callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
