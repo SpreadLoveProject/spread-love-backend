@@ -1,22 +1,25 @@
-# 의존성
 node_modules/
 
-# 환경변수
 .env
+.env.local
+.env.*.local
 !.env.example
 
-# 로그
 *.log
 logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# OS 파일
 .DS_Store
 
-# IDE
 .idea/
 .vscode/
+.eslintcache
 
 dump.rdb
 
-# 테스트 커버리지
 coverage/
+
+nginx/nginx.conf
