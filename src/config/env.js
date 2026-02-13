@@ -8,6 +8,10 @@ if (missing.length > 0) {
   throw new Error(`필수 환경변수가 설정되지 않았습니다: ${missing.join(", ")}`);
 }
 
+if (process.env.NODE_ENV === "production" && !process.env.ALLOWED_EXTENSION_IDS?.trim()) {
+  throw new Error("프로덕션 환경에서 ALLOWED_EXTENSION_IDS 필수");
+}
+
 export default {
   NODE_ENV: process.env.NODE_ENV || "development",
   PORT: parseInt(process.env.PORT, 10) || 3000,

@@ -32,7 +32,7 @@ app.use(
         if (isAllowedExtension) {
           return callback(null, true);
         }
-      } else {
+      } else if (env.NODE_ENV === "development") {
         if (origin.startsWith("chrome-extension://")) {
           return callback(null, true);
         }
