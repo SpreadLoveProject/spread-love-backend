@@ -21,6 +21,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    platform: linux/amd64
     container_name: spread-love-backend
     restart: unless-stopped
     expose:
