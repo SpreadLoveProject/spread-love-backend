@@ -3,22 +3,32 @@ import logger from "../config/logger.js";
 import { openai } from "../config/openai.js";
 import { parseJsonResponse } from "../utils/jsonUtils.js";
 import { getSummaryPrompt } from "../utils/promptUtils.js";
-import { captureFullPage } from "../utils/puppeteerUtils.js";
+import { captureFullPage, capturePageWithText } from "../utils/puppeteerUtils.js";
+import { isArticleUrl } from "../utils/urlUtils.js";
 import { saveHistory } from "./historyService.js";
 
 const summarize = async ({ url, userId, settings }) => {
-  const imageDataUrl = await captureFullPage(url);
-  const systemPrompt = getSummaryPrompt(settings);
+  let imageDataUrl,
+    pageText = null;
+  if (isArticleUrl(url)) {
+    ({ imageDataUrl, pageText } = await capturePageWithText(url));
+  } else {
+    imageDataUrl = await captureFullPage(url);
+  }
+
+  const systemPrompt = getSummaryPrompt(settings, pageText);
+
+  const userContent = [{ type: "image_url", image_url: { url: imageDataUrl } }];
+  if (pageText) {
+    userContent.push({ type: "text", text: `[페이지 본문 텍스트]\n${pageText}` });
+  }
 
   const response = await openai.chat.completions.create({
     model: env.OPENAI_MODEL,
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: systemPrompt },
-      {
-        role: "user",
-        content: [{ type: "image_url", image_url: { url: imageDataUrl } }],
-      },
+      { role: "user", content: userContent },
     ],
   });
 
