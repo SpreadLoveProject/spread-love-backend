@@ -1,10 +1,10 @@
 import puppeteer from "puppeteer";
 
-import { PUPPETEER } from "../constants/common.js";
+import { ARTICLE_TEXT, PUPPETEER } from "../constants/common.js";
 import { AppError } from "../errors/AppError.js";
 import { assertExternalUrl } from "./urlUtils.js";
 
-const captureFullPage = async (url) => {
+const capturePage = async (url, extractText = false) => {
   assertExternalUrl(url);
   const browser = await puppeteer.launch({
     headless: true,
@@ -20,7 +20,7 @@ const captureFullPage = async (url) => {
     });
 
     await page.goto(url, {
-      waitUntil: "networkidle2",
+      waitUntil: extractText ? "load" : "networkidle2",
       timeout: PUPPETEER.PAGE_LOAD_TIMEOUT_MS,
     });
 
@@ -34,9 +34,20 @@ const captureFullPage = async (url) => {
       },
     });
 
-    const base64 = screenshotBuffer.toString("base64");
+    const imageDataUrl = `data:image/png;base64,${screenshotBuffer.toString("base64")}`;
 
-    return `data:image/png;base64,${base64}`;
+    if (!extractText) return { imageDataUrl };
+
+    const pageText = await page.evaluate((maxLength) => {
+      /* eslint-disable no-undef */
+      ["nav", "header", "footer", "aside", "script", "style"].forEach((tag) =>
+        document.querySelectorAll(tag).forEach((el) => el.remove()),
+      );
+      return document.body.innerText.trim().slice(0, maxLength);
+      /* eslint-enable no-undef */
+    }, ARTICLE_TEXT.MAX_LENGTH);
+
+    return { imageDataUrl, pageText: pageText || null };
   } catch (error) {
     if (error.message.includes("net::ERR_NAME_NOT_RESOLVED")) {
       throw new AppError("VALIDATION_URL_INVALID");
@@ -52,4 +63,11 @@ const captureFullPage = async (url) => {
   }
 };
 
-export { captureFullPage };
+export const captureFullPage = async (url) => {
+  const { imageDataUrl } = await capturePage(url, false);
+  return imageDataUrl;
+};
+
+export const capturePageWithText = async (url) => {
+  return capturePage(url, true);
+};
