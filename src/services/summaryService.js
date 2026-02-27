@@ -8,15 +8,13 @@ import { isArticleUrl } from "../utils/urlUtils.js";
 import { saveHistory } from "./historyService.js";
 
 const summarize = async ({ url, userId, settings }) => {
-  let imageDataUrl,
-    pageText = null;
-  if (isArticleUrl(url)) {
-    ({ imageDataUrl, pageText } = await capturePageWithText(url));
-  } else {
-    imageDataUrl = await captureFullPage(url);
-  }
+  const {
+    imageDataUrl,
+    pageTitle,
+    pageText = null,
+  } = await (isArticleUrl(url) ? capturePageWithText(url) : captureFullPage(url));
 
-  const systemPrompt = getSummaryPrompt(settings, pageText);
+  const systemPrompt = getSummaryPrompt(settings, pageText, pageTitle);
 
   const userContent = [{ type: "image_url", image_url: { url: imageDataUrl } }];
   if (pageText) {

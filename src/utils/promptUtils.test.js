@@ -26,10 +26,11 @@ describe("promptUtils", () => {
       expect(prompt).toContain(LENGTH_INSTRUCTIONS.short);
     });
 
-    it("pageText가 없으면 스크린샷 기반 지시를 포함한다", () => {
+    it("pageText가 없으면 이전 방식의 기본 프롬프트를 사용한다", () => {
       const prompt = getSummaryPrompt({ length: "short", persona: "default" });
 
-      expect(prompt).toContain("스크린샷에서 실제로 보이는 텍스트와 요소만을 근거로");
+      expect(prompt).toContain("페이지 구조와 주요 내용 설명");
+      expect(prompt).toContain(LENGTH_INSTRUCTIONS.short);
     });
   });
 
