@@ -8,6 +8,7 @@ const createMockPage = (overrides = {}) => ({
   goto: vi.fn(),
   screenshot: vi.fn(() => Buffer.from("screenshot-data")),
   evaluate: vi.fn(() => "추출된 본문 텍스트"),
+  title: vi.fn(() => "테스트 페이지 제목"),
   ...overrides,
 });
 
@@ -47,7 +48,8 @@ describe("puppeteerUtils", () => {
 
       const result = await captureFullPage("https://example.com");
 
-      expect(result).toMatch(/^data:image\/png;base64,/);
+      expect(result.imageDataUrl).toMatch(/^data:image\/png;base64,/);
+      expect(result.pageTitle).toBe("테스트 페이지 제목");
       expect(mockPage.setViewport).toHaveBeenCalledWith({
         width: PUPPETEER.VIEWPORT_WIDTH,
         height: PUPPETEER.VIEWPORT_HEIGHT,
@@ -131,6 +133,7 @@ describe("puppeteerUtils", () => {
       const result = await capturePageWithText("https://example.com/news/123");
 
       expect(result.imageDataUrl).toMatch(/^data:image\/png;base64,/);
+      expect(result.pageTitle).toBe("테스트 페이지 제목");
       expect(result.pageText).toBe("추출된 본문 텍스트");
     });
 

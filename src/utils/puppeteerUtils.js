@@ -35,19 +35,18 @@ const capturePage = async (url, extractText = false) => {
     });
 
     const imageDataUrl = `data:image/png;base64,${screenshotBuffer.toString("base64")}`;
+    const pageTitle = (await page.title()) || null;
 
-    if (!extractText) return { imageDataUrl };
+    if (!extractText) return { imageDataUrl, pageTitle };
 
     const pageText = await page.evaluate((maxLength) => {
-      /* eslint-disable no-undef */
       ["nav", "header", "footer", "aside", "script", "style"].forEach((tag) =>
-        document.querySelectorAll(tag).forEach((el) => el.remove()),
+        globalThis.document.querySelectorAll(tag).forEach((element) => element.remove()),
       );
-      return document.body.innerText.trim().slice(0, maxLength);
-      /* eslint-enable no-undef */
+      return globalThis.document.body.innerText.trim().slice(0, maxLength);
     }, ARTICLE_TEXT.MAX_LENGTH);
 
-    return { imageDataUrl, pageText: pageText || null };
+    return { imageDataUrl, pageTitle, pageText: pageText || null };
   } catch (error) {
     if (error.message.includes("net::ERR_NAME_NOT_RESOLVED")) {
       throw new AppError("VALIDATION_URL_INVALID");
@@ -64,8 +63,8 @@ const capturePage = async (url, extractText = false) => {
 };
 
 export const captureFullPage = async (url) => {
-  const { imageDataUrl } = await capturePage(url, false);
-  return imageDataUrl;
+  const { imageDataUrl, pageTitle } = await capturePage(url, false);
+  return { imageDataUrl, pageTitle };
 };
 
 export const capturePageWithText = async (url) => {
