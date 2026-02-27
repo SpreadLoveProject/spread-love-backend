@@ -18,6 +18,20 @@ describe("promptUtils", () => {
       expect(prompt).toContain('"title"');
       expect(prompt).toContain('"summary"');
     });
+
+    it("pageText가 있으면 본문 텍스트 기반 지시를 포함한다", () => {
+      const prompt = getSummaryPrompt({ length: "short", persona: "default" }, "기사 본문");
+
+      expect(prompt).toContain("제공된 본문 텍스트를 기반으로");
+      expect(prompt).toContain(LENGTH_INSTRUCTIONS.short);
+    });
+
+    it("pageText가 없으면 이전 방식의 기본 프롬프트를 사용한다", () => {
+      const prompt = getSummaryPrompt({ length: "short", persona: "default" });
+
+      expect(prompt).toContain("페이지 구조와 주요 내용 설명");
+      expect(prompt).toContain(LENGTH_INSTRUCTIONS.short);
+    });
   });
 
   describe("getAnalysisPrompt", () => {

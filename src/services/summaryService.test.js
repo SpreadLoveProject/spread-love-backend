@@ -4,7 +4,7 @@ import logger from "../config/logger.js";
 import { openai } from "../config/openai.js";
 import { parseJsonResponse } from "../utils/jsonUtils.js";
 import { getSummaryPrompt } from "../utils/promptUtils.js";
-import { captureFullPage } from "../utils/puppeteerUtils.js";
+import { captureFullPage, capturePageWithText } from "../utils/puppeteerUtils.js";
 import { saveHistory } from "./historyService.js";
 import { summarize } from "./summaryService.js";
 
@@ -28,6 +28,7 @@ vi.mock("../config/openai.js", () => ({
 
 vi.mock("../utils/puppeteerUtils.js", () => ({
   captureFullPage: vi.fn(),
+  capturePageWithText: vi.fn(),
 }));
 
 vi.mock("../utils/jsonUtils.js", () => ({
@@ -47,7 +48,10 @@ const MOCK_PARSED = { title: "테스트 제목", summary: "테스트 요약" };
 const MOCK_JSON = JSON.stringify(MOCK_PARSED);
 
 const setupMocks = () => {
-  captureFullPage.mockResolvedValue("data:image/png;base64,abc");
+  captureFullPage.mockResolvedValue({
+    imageDataUrl: "data:image/png;base64,abc",
+    pageTitle: "테스트 페이지",
+  });
   getSummaryPrompt.mockReturnValue("system prompt");
   openai.chat.completions.create.mockResolvedValue({
     choices: [{ message: { content: MOCK_JSON } }],
@@ -68,7 +72,7 @@ describe("summaryService", () => {
       });
 
       expect(captureFullPage).toHaveBeenCalledWith("https://example.com");
-      expect(getSummaryPrompt).toHaveBeenCalledWith(MOCK_SETTINGS);
+      expect(getSummaryPrompt).toHaveBeenCalledWith(MOCK_SETTINGS, null, "테스트 페이지");
       expect(openai.chat.completions.create).toHaveBeenCalledWith({
         model: "gpt-4o",
         response_format: { type: "json_object" },
@@ -129,6 +133,42 @@ describe("summaryService", () => {
       });
     });
 
+    it("기사 URL이면 capturePageWithText를 사용하고 pageText를 프롬프트에 전달한다", async () => {
+      const mockPageText = "기사 본문 내용";
+      capturePageWithText.mockResolvedValue({
+        imageDataUrl: "data:image/png;base64,abc",
+        pageTitle: "기사 사이트",
+        pageText: mockPageText,
+      });
+      getSummaryPrompt.mockReturnValue("system prompt");
+      openai.chat.completions.create.mockResolvedValue({
+        choices: [{ message: { content: MOCK_JSON } }],
+      });
+      parseJsonResponse.mockReturnValue(MOCK_PARSED);
+
+      await summarize({
+        url: "https://example.com/news/123",
+        userId: null,
+        settings: MOCK_SETTINGS,
+      });
+
+      expect(capturePageWithText).toHaveBeenCalledWith("https://example.com/news/123");
+      expect(captureFullPage).not.toHaveBeenCalled();
+      expect(getSummaryPrompt).toHaveBeenCalledWith(MOCK_SETTINGS, mockPageText, "기사 사이트");
+      expect(openai.chat.completions.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          messages: expect.arrayContaining([
+            expect.objectContaining({
+              role: "user",
+              content: expect.arrayContaining([
+                { type: "text", text: `[페이지 본문 텍스트]\n${mockPageText}` },
+              ]),
+            }),
+          ]),
+        }),
+      );
+    });
+
     it("페이지 캡처 실패 시 요약을 중단하고 에러를 호출자에게 전파한다", async () => {
       captureFullPage.mockRejectedValue(new Error("페이지 캡처 실패"));
 
@@ -138,7 +178,10 @@ describe("summaryService", () => {
     });
 
     it("OpenAI API 호출 실패 시 요약을 중단하고 에러를 호출자에게 전파한다", async () => {
-      captureFullPage.mockResolvedValue("data:image/png;base64,abc");
+      captureFullPage.mockResolvedValue({
+        imageDataUrl: "data:image/png;base64,abc",
+        pageTitle: "테스트 페이지",
+      });
       getSummaryPrompt.mockReturnValue("system prompt");
       openai.chat.completions.create.mockRejectedValue(new Error("OpenAI 서버 에러"));
 

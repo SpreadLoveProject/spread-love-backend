@@ -1,5 +1,16 @@
 import { AppError } from "../errors/AppError.js";
 
+const ARTICLE_URL_PATTERNS = [
+  /v\.daum\.net\/v\//,
+  /\/article\//,
+  /\/news\//,
+  /\/post\//,
+  /\/entry\//,
+  /\/blog\//,
+];
+
+export const isArticleUrl = (url) => ARTICLE_URL_PATTERNS.some((pattern) => pattern.test(url));
+
 const BLOCKED_PATTERNS = [
   /^127\./,
   /^10\./,

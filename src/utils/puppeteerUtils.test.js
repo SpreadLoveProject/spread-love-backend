@@ -1,12 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { PUPPETEER } from "../constants/common.js";
-import { captureFullPage } from "./puppeteerUtils.js";
+import { captureFullPage, capturePageWithText } from "./puppeteerUtils.js";
 
 const createMockPage = (overrides = {}) => ({
   setViewport: vi.fn(),
   goto: vi.fn(),
   screenshot: vi.fn(() => Buffer.from("screenshot-data")),
+  evaluate: vi.fn(() => "추출된 본문 텍스트"),
+  title: vi.fn(() => "테스트 페이지 제목"),
   ...overrides,
 });
 
@@ -46,7 +48,8 @@ describe("puppeteerUtils", () => {
 
       const result = await captureFullPage("https://example.com");
 
-      expect(result).toMatch(/^data:image\/png;base64,/);
+      expect(result.imageDataUrl).toMatch(/^data:image\/png;base64,/);
+      expect(result.pageTitle).toBe("테스트 페이지 제목");
       expect(mockPage.setViewport).toHaveBeenCalledWith({
         width: PUPPETEER.VIEWPORT_WIDTH,
         height: PUPPETEER.VIEWPORT_HEIGHT,
@@ -116,6 +119,58 @@ describe("puppeteerUtils", () => {
 
       await expect(captureFullPage("https://example.com")).rejects.toThrow(
         expect.objectContaining({ code: "PUPPETEER_CAPTURE_FAILED" }),
+      );
+      expect(mockBrowser.close).toHaveBeenCalled();
+    });
+  });
+
+  describe("capturePageWithText", () => {
+    it("스크린샷과 본문 텍스트를 함께 반환한다", async () => {
+      const mockPage = createMockPage();
+      const mockBrowser = createMockBrowser(mockPage);
+      puppeteer.launch.mockResolvedValue(mockBrowser);
+
+      const result = await capturePageWithText("https://example.com/news/123");
+
+      expect(result.imageDataUrl).toMatch(/^data:image\/png;base64,/);
+      expect(result.pageTitle).toBe("테스트 페이지 제목");
+      expect(result.pageText).toBe("추출된 본문 텍스트");
+    });
+
+    it("waitUntil: load 전략을 사용한다", async () => {
+      const mockPage = createMockPage();
+      const mockBrowser = createMockBrowser(mockPage);
+      puppeteer.launch.mockResolvedValue(mockBrowser);
+
+      await capturePageWithText("https://example.com/news/123");
+
+      expect(mockPage.goto).toHaveBeenCalledWith(
+        "https://example.com/news/123",
+        expect.objectContaining({ waitUntil: "load" }),
+      );
+    });
+
+    it("본문 텍스트가 빈 문자열이면 pageText를 null로 반환한다", async () => {
+      const mockPage = createMockPage({ evaluate: vi.fn(() => "") });
+      const mockBrowser = createMockBrowser(mockPage);
+      puppeteer.launch.mockResolvedValue(mockBrowser);
+
+      const result = await capturePageWithText("https://example.com/news/123");
+
+      expect(result.pageText).toBeNull();
+    });
+
+    it("페이지 로딩 시간 초과 시 PUPPETEER_PAGE_TIMEOUT을 던진다", async () => {
+      const mockPage = createMockPage({
+        goto: vi.fn(() => {
+          throw new Error("Navigation Timeout Exceeded");
+        }),
+      });
+      const mockBrowser = createMockBrowser(mockPage);
+      puppeteer.launch.mockResolvedValue(mockBrowser);
+
+      await expect(capturePageWithText("https://example.com/news/123")).rejects.toThrow(
+        expect.objectContaining({ code: "PUPPETEER_PAGE_TIMEOUT" }),
       );
       expect(mockBrowser.close).toHaveBeenCalled();
     });
