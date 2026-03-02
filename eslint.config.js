@@ -23,6 +23,14 @@ export default [
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     },
   },
+  {
+    files: ["src/utils/puppeteerUtils.js"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
   pluginJs.configs.recommended,
   eslintConfigPrettier,
 ];

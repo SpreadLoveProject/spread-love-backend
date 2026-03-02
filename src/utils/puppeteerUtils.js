@@ -41,9 +41,9 @@ const capturePage = async (url, extractText = false) => {
 
     const pageText = await page.evaluate((maxLength) => {
       ["nav", "header", "footer", "aside", "script", "style"].forEach((tag) =>
-        globalThis.document.querySelectorAll(tag).forEach((element) => element.remove()),
+        document.querySelectorAll(tag).forEach((element) => element.remove()),
       );
-      return globalThis.document.body.innerText.trim().slice(0, maxLength);
+      return document.body.innerText.trim().slice(0, maxLength);
     }, ARTICLE_TEXT.MAX_LENGTH);
 
     return { imageDataUrl, pageTitle, pageText: pageText || null };
